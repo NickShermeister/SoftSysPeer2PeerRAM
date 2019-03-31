@@ -40,11 +40,11 @@ The final resource we need is something to prove that this is a good idea. That 
 ## First Steps
 As we are a larger group of 4, we are splitting up into two smaller groups in order to pursue initial tasks. Therefore, there are two areas of focus for our project.
 - Networking -- Nate Sampo & Nicholas Sherman
- - Determine potential ways to host a server and to connect with clients. This can be considered done once we have at least three different types of ways to connect servers with clients.
- - Finalize which protocol we will use for server-client communication. This can be considered done once we have a single protocol we will be using and all information regarding that protocol so we can implement it.
- - Create and host a server and prove that it can be accessed from another computer. This is considered done if we can ping a server we create from another computer.
- - Create a client that interfaces with the Server. This is considered done if we have a client that is able to pass data back and forth to the already created server.
+    - Determine potential ways to host a server and to connect with clients. This can be considered done once we have at least three different types of ways to connect servers with clients.
+    - Finalize which protocol we will use for server-client communication. This can be considered done once we have a single protocol we will be using and all information regarding that protocol so we can implement it.
+    - Create and host a server and prove that it can be accessed from another computer. This is considered done if we can ping a server we create from another computer.
+    - Create a client that interfaces with the Server. This is considered done if we have a client that is able to pass data back and forth to the already created server.
 - Multithreading -- The Nick Steelman & Prava
- - Figure out how to quickly process storage requests and choose from a list of possible RAM donors. This is considered done when we have chosen/implemented a way to multiple process requests effectively.
- - Figure out how to store data, what data is stored where, and quickly access this to efficiently process data retrieval requests. This is considered done when we have a data storage/retrieval system that works relatively fast.
- - Figure out how to handle threading in the system so that data is safe and modified correctly. This is considered done when we have mapped out how we want our necessary functions to lock.
+    - Figure out how to quickly process storage requests and choose from a list of possible RAM donors. This is considered done when we have chosen/implemented a way to multiple process requests effectively.
+    - Figure out how to store data, what data is stored where, and quickly access this to efficiently process data retrieval requests. This is considered done when we have a data storage/retrieval system that works relatively fast.
+    - Figure out how to handle threading in the system so that data is safe and modified correctly. This is considered done when we have mapped out how we want our necessary functions to lock.
