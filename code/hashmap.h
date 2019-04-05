@@ -23,3 +23,4 @@ void insert(hashmap* hm,int key,int data);
 DataItem *search(hashmap* hm, int key);
 hashmap* declare_map(int (*hashcode)(int, int));
 int hashCode(int size, int key);
+void free_map(hashmap* hm);

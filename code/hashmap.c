@@ -19,6 +19,17 @@ hashmap* declare_map(int (*hashcode)(int, int)){
       return hm;
 }
 
+void free_map(hashmap* hm){
+  for(int i =0; i< hm->arr_size; i++){
+    item = hm->hash_array[i];
+    if(item != NULL && item->key != -1){
+      free(item);
+    }
+  }
+  free(hm->hash_array);
+  free(hm);
+}
+
 DataItem *search(hashmap* hm, int key) {
    //get the hash
    int hashIndex = (hm->hashcode)((hm->arr_size), key);
@@ -29,7 +40,9 @@ DataItem *search(hashmap* hm, int key) {
       if(((hm->hash_array)[hashIndex])->key == key)
          return ((hm->hash_array)[hashIndex]);
 
-      //go to next cell
+      //go to next cellfor(int i =0;i < s->num_ids;i++){
+    free(ids[i]);
+  }
       ++hashIndex;
 
       //wrap around the table
@@ -86,7 +99,7 @@ DataItem* delete(hashmap* hm,  DataItem* item) {
       }
 
       //go to next cell
-      ++hashIndex;
+      ++hashIndex;requesters
 
       //wrap around the table
       hashIndex %= hm->arr_size;
