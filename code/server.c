@@ -1,12 +1,5 @@
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <errno.h>
-#include <string.h>
-#include <sys/types.h>
+
+#include "server_core.h"
 
 int main(void)
 {
@@ -25,7 +18,7 @@ int main(void)
 
   serv_addr.sin_family = AF_INET;
   serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
-  serv_addr.sin_port = htons(1666);
+  serv_addr.sin_port = htons(PORT);
 
   bind(listenfd, (struct sockaddr*)&serv_addr,sizeof(serv_addr));
 
