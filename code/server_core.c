@@ -22,6 +22,17 @@ void* s_free(server* s){
   free(s);
 }
 
+void requests[] = {s_add_requestor, s_add_donor, s_remove_requestor, s_remove_donor, store, retrieve};
+
+void* accept_request(){
+  //process type of request
+  //TODO
+  //Optionally spawn child thread to handle request
+  //TODO
+}
+
+//All of the following should optionally be allowed to be executed in a separate thread
+
 void* s_add_requestor(int r_IP){
   //Should block requestor validation
   //Add requestor to the list of valid requestors
