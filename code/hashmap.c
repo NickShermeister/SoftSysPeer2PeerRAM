@@ -6,6 +6,8 @@
 #include <stdbool.h>
 #include "hashmap.h"
 
+int DEFAULT_SIZE = 10;
+
 int hashCode(int size, int key) {
    return key % size;
 }
@@ -151,38 +153,38 @@ void display(hashmap* hm) {
    printf("\n");
 }
 
-int main() {
-   dummyItem = (DataItem*) malloc(sizeof(DataItem));
-   dummyItem->data = -1;
-   dummyItem->key = -1;
-   hashmap* hm = declare_map(&hashCode);
-
-   insert(hm, 1, 20);
-   insert(hm, 2, 70);
-   insert(hm, 42, 80);
-   insert(hm, 4, 25);
-   insert(hm, 12, 44);
-   insert(hm, 14, 32);
-   insert(hm, 17, 11);
-   insert(hm, 13, 78);
-   insert(hm, 37, 97);
-
-   display(hm);
-   item = search(hm, 37);
-
-   if(item != NULL) {
-      printf("Element found: %d\n", item->data);
-   } else {
-      printf("Element not found\n");
-   }
-
-   delete(hm, item->key);
-   item = search(hm, 37);
-
-   if(item != NULL) {
-      printf("Element found: %d\n", item->data);
-   } else {
-      printf("Element not found\n");
-   }
-   printf("Element found: %d\n", first(hm)->data);
-}
+// int main() {
+//    dummyItem = (DataItem*) malloc(sizeof(DataItem));
+//    dummyItem->data = -1;
+//    dummyItem->key = -1;
+//    hashmap* hm = declare_map(&hashCode);
+//
+//    insert(hm, 1, 20);
+//    insert(hm, 2, 70);
+//    insert(hm, 42, 80);
+//    insert(hm, 4, 25);
+//    insert(hm, 12, 44);
+//    insert(hm, 14, 32);
+//    insert(hm, 17, 11);
+//    insert(hm, 13, 78);
+//    insert(hm, 37, 97);
+//
+//    display(hm);
+//    item = search(hm, 37);
+//
+//    if(item != NULL) {
+//       printf("Element found: %d\n", item->data);
+//    } else {
+//       printf("Element not found\n");
+//    }
+//
+//    delete(hm, item->key);
+//    item = search(hm, 37);
+//
+//    if(item != NULL) {
+//       printf("Element found: %d\n", item->data);
+//    } else {
+//       printf("Element not found\n");
+//    }
+//    printf("Element found: %d\n", first(hm)->data);
+// }

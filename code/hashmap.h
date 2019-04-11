@@ -12,7 +12,7 @@ typedef struct{
   int (*hashcode) (int, int);
 }hashmap;
 
-int DEFAULT_SIZE = 10;
+extern int DEFAULT_SIZE;
 DataItem* dummyItem;
 DataItem* item;
 
@@ -24,3 +24,4 @@ DataItem *search(hashmap* hm, int key);
 hashmap* declare_map(int (*hashcode)(int, int));
 int hashCode(int size, int key);
 void free_map(hashmap* hm);
+DataItem *first(hashmap* hm);
