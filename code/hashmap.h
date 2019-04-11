@@ -18,7 +18,7 @@ DataItem* item;
 
 void rehash(hashmap* hm, int dir);
 void display(hashmap* hm);
-DataItem* delete(hashmap* hm,  DataItem* item);
+DataItem* delete(hashmap* hm,  int key);
 void insert(hashmap* hm,int key,int data);
 DataItem *search(hashmap* hm, int key);
 hashmap* declare_map(int (*hashcode)(int, int));

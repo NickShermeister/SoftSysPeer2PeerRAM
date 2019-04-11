@@ -30,6 +30,16 @@ void free_map(hashmap* hm){
   free(hm);
 }
 
+DataItem *first(hashmap* hm){
+  for(int i =0; i< hm->arr_size; i++){
+    item = hm->hash_array[i];
+    if(item != NULL && item->key != -1){
+      return item;
+    }
+  }
+ return NULL;
+}
+
 DataItem *search(hashmap* hm, int key) {
    //get the hash
    int hashIndex = (hm->hashcode)((hm->arr_size), key);
@@ -37,12 +47,9 @@ DataItem *search(hashmap* hm, int key) {
    //move in array until an empty
    while(((hm->hash_array)[hashIndex]) != NULL) {
 
-      if(((hm->hash_array)[hashIndex])->key == key)
+      if(((hm->hash_array)[hashIndex])->key == key && ((hm->hash_array)[hashIndex])->data != -1)
          return ((hm->hash_array)[hashIndex]);
 
-      //go to next cellfor(int i =0;i < s->num_ids;i++){
-    free(ids[i]);
-  }
       ++hashIndex;
 
       //wrap around the table
@@ -77,8 +84,7 @@ void insert(hashmap* hm,int key,int data) {
    }
 }
 
-DataItem* delete(hashmap* hm,  DataItem* item) {
-   int key = item->key;
+DataItem* delete(hashmap* hm,  int key) {
 
    //get the hash
    int hashIndex = (hm->hashcode)((hm->arr_size), key);
@@ -99,10 +105,10 @@ DataItem* delete(hashmap* hm,  DataItem* item) {
       }
 
       //go to next cell
-      ++hashIndex;requesters
+      ++hashIndex;
 
       //wrap around the table
-      hashIndex %= hm->arr_size;
+      hashIndex = hashIndex %hm->arr_size;
    }
    return NULL;
 }
@@ -170,7 +176,7 @@ int main() {
       printf("Element not found\n");
    }
 
-   delete(hm, item);
+   delete(hm, item->key);
    item = search(hm, 37);
 
    if(item != NULL) {
@@ -178,4 +184,5 @@ int main() {
    } else {
       printf("Element not found\n");
    }
+   printf("Element found: %d\n", first(hm)->data);
 }
