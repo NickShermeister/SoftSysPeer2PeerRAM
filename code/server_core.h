@@ -10,8 +10,8 @@
 #include <sys/types.h>
 #include <pthread.h>
 
-int PORT = 1666;
-char* IP_ADDR = "127.0.0.1";
+int PORT = 5000;
+char* IP_ADDR = "192.168.35.4";
 
 void* s_add_requestor(void* r_IP);
 void* s_add_donor(void* d_IP);
