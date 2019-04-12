@@ -9,5 +9,5 @@
 #include <string.h>
 #include <sys/types.h>
 
-int PORT = 1666;
+int PORT = 1668;
 char* IP_ADDR = "127.0.0.1";
