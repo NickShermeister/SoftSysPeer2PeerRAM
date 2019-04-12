@@ -17,8 +17,6 @@ void print_message(char *message) {
 int main(void)
 {
   int sockfd = 0,n = 0;
-  char recvBuff[1024];
-  char sendBuff[1024] = "Hi from the client.\n\0";
   char receive_buffer[1024];
   struct sockaddr_in serv_addr;
 
@@ -34,14 +32,13 @@ int main(void)
     return 1;
   } else {
     puts("Connection Successful\n");
-    write(sockfd, sendBuff, strlen(sendBuff));
   }
 
   if(recv(sockfd, receive_buffer, 1024, 0) < 0) {
     puts("Receive failed\n");
-    return 1;
+    return 1; 
   }
-
+  
   puts("Server Message:");
   print_message(receive_buffer);
 

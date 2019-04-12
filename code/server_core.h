@@ -11,7 +11,7 @@
 #include <pthread.h>
 
 int PORT = 5000;
-char* IP_ADDR = "192.168.32.209"; //Edit to your IP
+char* IP_ADDR = "192.168.35.4"; //Edit to your IP
 
 void* s_add_requestor(void* r_IP);
 void* s_add_donor(void* d_IP);
