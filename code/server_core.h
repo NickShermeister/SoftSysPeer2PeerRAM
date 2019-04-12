@@ -12,3 +12,8 @@
 
 int PORT = 1666;
 char* IP_ADDR = "127.0.0.1";
+
+void* s_add_requestor(void* r_IP);
+void* s_add_donor(void* d_IP);
+void* s_remove_requestor(void* r_IP);
+void* s_remove_donor(void* d_IP);

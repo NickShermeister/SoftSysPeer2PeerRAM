@@ -23,16 +23,21 @@ void* s_free(server* s){
   free(s);
 }
 server* s;
-// func* requests = {s_add_requestor, s_add_donor, s_remove_requestor, s_remove_donor, store, retrieve};
+void* (*f[])(void*) = {&s_add_requestor, &s_add_donor, &s_remove_requestor, &s_remove_donor};
 pthread_mutex_t requestor_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t donor_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t location_mutex = PTHREAD_MUTEX_INITIALIZER;
 int IDNO = 100;
 
-void accept_request(){
+
+void accept_request(int index, int IP){
   //process type of request
   //TODO
   //Optionally spawn child thread to handle request
+  pthread_t thread_id;
+  int *arg = malloc(sizeof(*arg));
+  *arg = IP;
+  pthread_create(&thread_id, NULL, f[index], arg);
   //TODO
 }
 
@@ -46,36 +51,41 @@ void accept_request(){
 
 //All of the following should optionally be allowed to be executed in a separate thread
 
-void s_add_requestor(int r_IP){
+void* s_add_requestor(void* r_IP){
+  int r_IP_int = *((int *) r_IP);
+
   //Should block requestor validation
   pthread_mutex_lock(&requestor_mutex);
   //Add requestor to the list of valid requestors
-  insert(s->requestors, r_IP, 0);
+  insert(s->requestors, r_IP_int, 0);
   pthread_mutex_unlock(&requestor_mutex);
 }
 
-void s_add_donor(int d_IP){
+void* s_add_donor(void* d_IP){
+  int d_IP_int = *((int *) d_IP);
   //Should block donor choice and request sending
   pthread_mutex_lock(&donor_mutex);
   //Add donor to the list
-  insert(s->donors, d_IP, 0);
+  insert(s->donors, d_IP_int, 0);
   pthread_mutex_unlock(&donor_mutex);
 }
 
-void s_remove_requestor(int r_IP){
+void* s_remove_requestor(void* r_IP){
+  int r_IP_int = *((int *) r_IP);
   //Should block requestor validation
   pthread_mutex_lock(&requestor_mutex);
   //Remove requestor from list of valid requestors
-  delete(s->requestors, r_IP);
+  delete(s->requestors, r_IP_int);
   pthread_mutex_unlock(&requestor_mutex);
 
 }
 
-void s_remove_donor(int d_IP){
+void* s_remove_donor(void* d_IP){
+  int d_IP_int = *((int *) d_IP);
   //Should block donor validation
   pthread_mutex_lock(&donor_mutex);
   //Remove donor from list of valid donor
-  delete(s->requestors, d_IP);
+  delete(s->requestors, d_IP_int);
   pthread_mutex_unlock(&donor_mutex);
 }
 
@@ -83,9 +93,10 @@ void store(int r_IP, void* Data, int size){
   //Validate requestor
   if(search(s->requestors, r_IP) == NULL){
     //We don't know who you are
-    printf("Requestor not recognized: %i", r_IP);
+    printf("Requestor not recognized: %i\n", r_IP);
     return;
   }
+
   //Generate id
   int id = IDNO;
   IDNO++;
@@ -102,7 +113,6 @@ void store(int r_IP, void* Data, int size){
   //TODO by Nick and Nate
   //Save donor for id
   insert(s->locations, id, d_IP);
-  return id;
 }
 
 void retrieve(int r_IP, int id){
@@ -127,10 +137,11 @@ int main(){
   int donor_name_2 = 2002;
   int req_name_1 = 1001;
   int req_name_2 = 1002;
-  s_add_donor(donor_name_1);
-  s_add_donor(donor_name_2);
-  s_add_requestor(req_name_1);
-  s_add_requestor(req_name_2);
+  accept_request(1,donor_name_1);
+  accept_request(1,donor_name_2);
+  accept_request(0,req_name_1);
+  accept_request(0,req_name_2);
+  sleep(1);
   store(req_name_1, NULL, 0);
   store(req_name_2, NULL, 0);
   store(87, NULL, 0);
