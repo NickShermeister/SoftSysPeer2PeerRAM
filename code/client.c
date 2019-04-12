@@ -34,6 +34,7 @@ int main(void)
     return 1;
   } else {
     puts("Connection Successful\n");
+    write(sockfd, sendBuff, strlen(sendBuff));
   }
 
   if(recv(sockfd, receive_buffer, 1024, 0) < 0) {

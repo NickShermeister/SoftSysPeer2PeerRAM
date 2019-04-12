@@ -97,10 +97,7 @@ int main(void)
 //       connfd = accept(listenfd, (struct sockaddr*)NULL ,NULL); // accept awaiting request
 //       printf("Link accepted.\n");
 //
-//       int n;
-//
-//       n = read(connfd, recvBuff, 1024);
-//       printf("%s", recvBuff);
+
 //
 //
 //
@@ -117,6 +114,11 @@ int main(void)
       client_count++;
       puts("New Client Connection\n");
       printf("Total Connections:%d\n\n", client_count);
+
+      int n;
+
+      n = read(connfd, recvBuff, 1024);
+      printf("%s", recvBuff);
 
       strcpy(send_buffer, "Wowzers\\");
       write(connfd, send_buffer, strlen(send_buffer));
