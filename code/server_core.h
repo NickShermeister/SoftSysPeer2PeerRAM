@@ -10,5 +10,5 @@
 #include <sys/types.h>
 #include <pthread.h>
 
-int PORT = 1668;
+int PORT = 1677;
 char* IP_ADDR = "127.0.0.1";

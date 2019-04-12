@@ -5,6 +5,7 @@ int main(void)
 {
   int sockfd = 0,n = 0;
   char recvBuff[1024];
+  char sendBuff[1024] = "Hi from the client.\n\0";
   struct sockaddr_in serv_addr;
 
   memset(recvBuff, '0' ,sizeof(recvBuff));
@@ -24,15 +25,10 @@ int main(void)
       return 1;
     }
 
-  while((n = read(sockfd, recvBuff, sizeof(recvBuff)-1)) > 0)
-    {
-      recvBuff[n] = 0;
-      if(fputs(recvBuff, stdout) == EOF)
-    {
-      printf("\n Error : Fputs error");
-    }
-      printf("\n");
-    }
+  send(sockfd, sendBuff, strlen(sendBuff), 0);
+
+  n = read(sockfd, recvBuff, sizeof(recvBuff)-100);
+  printf("RecvBuff: %s", recvBuff);
 
   if( n < 0)
     {
