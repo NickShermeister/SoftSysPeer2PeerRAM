@@ -8,6 +8,7 @@
 #include <errno.h>
 #include <string.h>
 #include <sys/types.h>
+#include <pthread.h>
 
 int PORT = 1668;
 char* IP_ADDR = "127.0.0.1";

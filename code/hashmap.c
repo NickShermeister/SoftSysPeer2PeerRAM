@@ -6,6 +6,8 @@
 #include <stdbool.h>
 #include "hashmap.h"
 
+int DEFAULT_SIZE = 10;
+
 int hashCode(int size, int key) {
    return key % size;
 }
@@ -30,6 +32,16 @@ void free_map(hashmap* hm){
   free(hm);
 }
 
+DataItem *first(hashmap* hm){
+  for(int i =0; i< hm->arr_size; i++){
+    item = hm->hash_array[i];
+    if(item != NULL && item->key != -1){
+      return item;
+    }
+  }
+ return NULL;
+}
+
 DataItem *search(hashmap* hm, int key) {
    //get the hash
    int hashIndex = (hm->hashcode)((hm->arr_size), key);
@@ -37,12 +49,9 @@ DataItem *search(hashmap* hm, int key) {
    //move in array until an empty
    while(((hm->hash_array)[hashIndex]) != NULL) {
 
-      if(((hm->hash_array)[hashIndex])->key == key)
+      if(((hm->hash_array)[hashIndex])->key == key && ((hm->hash_array)[hashIndex])->data != -1)
          return ((hm->hash_array)[hashIndex]);
 
-      //go to next cellfor(int i =0;i < s->num_ids;i++){
-    free(ids[i]);
-  }
       ++hashIndex;
 
       //wrap around the table
@@ -77,8 +86,7 @@ void insert(hashmap* hm,int key,int data) {
    }
 }
 
-DataItem* delete(hashmap* hm,  DataItem* item) {
-   int key = item->key;
+DataItem* delete(hashmap* hm,  int key) {
 
    //get the hash
    int hashIndex = (hm->hashcode)((hm->arr_size), key);
@@ -99,10 +107,10 @@ DataItem* delete(hashmap* hm,  DataItem* item) {
       }
 
       //go to next cell
-      ++hashIndex;requesters
+      ++hashIndex;
 
       //wrap around the table
-      hashIndex %= hm->arr_size;
+      hashIndex = hashIndex %hm->arr_size;
    }
    return NULL;
 }
@@ -145,37 +153,38 @@ void display(hashmap* hm) {
    printf("\n");
 }
 
-int main() {
-   dummyItem = (DataItem*) malloc(sizeof(DataItem));
-   dummyItem->data = -1;
-   dummyItem->key = -1;
-   hashmap* hm = declare_map(&hashCode);
-
-   insert(hm, 1, 20);
-   insert(hm, 2, 70);
-   insert(hm, 42, 80);
-   insert(hm, 4, 25);
-   insert(hm, 12, 44);
-   insert(hm, 14, 32);
-   insert(hm, 17, 11);
-   insert(hm, 13, 78);
-   insert(hm, 37, 97);
-
-   display(hm);
-   item = search(hm, 37);
-
-   if(item != NULL) {
-      printf("Element found: %d\n", item->data);
-   } else {
-      printf("Element not found\n");
-   }
-
-   delete(hm, item);
-   item = search(hm, 37);
-
-   if(item != NULL) {
-      printf("Element found: %d\n", item->data);
-   } else {
-      printf("Element not found\n");
-   }
-}
+// int main() {
+//    dummyItem = (DataItem*) malloc(sizeof(DataItem));
+//    dummyItem->data = -1;
+//    dummyItem->key = -1;
+//    hashmap* hm = declare_map(&hashCode);
+//
+//    insert(hm, 1, 20);
+//    insert(hm, 2, 70);
+//    insert(hm, 42, 80);
+//    insert(hm, 4, 25);
+//    insert(hm, 12, 44);
+//    insert(hm, 14, 32);
+//    insert(hm, 17, 11);
+//    insert(hm, 13, 78);
+//    insert(hm, 37, 97);
+//
+//    display(hm);
+//    item = search(hm, 37);
+//
+//    if(item != NULL) {
+//       printf("Element found: %d\n", item->data);
+//    } else {
+//       printf("Element not found\n");
+//    }
+//
+//    delete(hm, item->key);
+//    item = search(hm, 37);
+//
+//    if(item != NULL) {
+//       printf("Element found: %d\n", item->data);
+//    } else {
+//       printf("Element not found\n");
+//    }
+//    printf("Element found: %d\n", first(hm)->data);
+// }
