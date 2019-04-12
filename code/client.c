@@ -14,8 +14,7 @@ void print_message(char *message) {
   puts("\n");
 }
 
-int main(void)
-{
+int main(void) {
   int sockfd = 0,n = 0;
   char receive_buffer[1024];
   struct sockaddr_in serv_addr;

@@ -65,25 +65,24 @@ int main(void)
   print_ip();
   puts("\n");
 
-  while(1)
-    {
-      connfd = accept(listenfd, (struct sockaddr *) &client_address, &size);
-      struct sockaddr_in* pV4Addr = (struct sockaddr_in*) &client_address;
-      struct in_addr ipAddr = pV4Addr->sin_addr;
-      char str[INET_ADDRSTRLEN];
+  while(1) {
+    connfd = accept(listenfd, (struct sockaddr *) &client_address, &size);
+    struct sockaddr_in* pV4Addr = (struct sockaddr_in*) &client_address;
+    struct in_addr ipAddr = pV4Addr->sin_addr;
+    char str[INET_ADDRSTRLEN];
 
-      printf("%s\n", inet_ntop( AF_INET, &ipAddr, str, INET_ADDRSTRLEN ));
+    printf("%s\n", inet_ntop( AF_INET, &ipAddr, str, INET_ADDRSTRLEN ));
 
-      client_count++;
-      puts("New Client Connection\n");
-      printf("Total Connections:%d\n\n", client_count);
+    client_count++;
+    puts("New Client Connection\n");
+    printf("Total Connections:%d\n\n", client_count);
 
-      strcpy(send_buffer, "Wowzers\\");
-      write(connfd, send_buffer, strlen(send_buffer));
+    strcpy(send_buffer, "Wowzers\\");
+    write(connfd, send_buffer, strlen(send_buffer));
 
-      close(connfd);
-      sleep(1);
-    }
+    close(connfd);
+    sleep(1);
+  }
 
   return 0;
 }
