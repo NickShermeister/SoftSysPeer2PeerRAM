@@ -14,10 +14,12 @@ void print_message(char *message) {
   puts("\n");
 }
 
+
 int main(void) {
   int sockfd = 0,n = 0;
   char receive_buffer[1024];
   struct sockaddr_in serv_addr;
+  char * send_buffer = "Hi!";
 
   memset(receive_buffer, '0' ,sizeof(receive_buffer));
   sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -33,11 +35,16 @@ int main(void) {
     puts("Connection Successful\n");
   }
 
+  if(write(sockfd, send_buffer, strlen(send_buffer)) < 0){
+    puts("Send failed.\n");
+    return 1;
+  }
+
   if(recv(sockfd, receive_buffer, 1024, 0) < 0) {
     puts("Receive failed\n");
-    return 1; 
+    return 1;
   }
-  
+
   puts("Server Message:");
   print_message(receive_buffer);
 

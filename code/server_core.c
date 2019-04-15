@@ -1,5 +1,6 @@
 #include "hashmap.h"
 #include "server_core.h"
+#include "general_functions.c"
 
 typedef struct {
   hashmap* requestors;
@@ -28,6 +29,13 @@ pthread_mutex_t requestor_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t donor_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t location_mutex = PTHREAD_MUTEX_INITIALIZER;
 int IDNO = 100;
+int listenfd = 0, connfd = 0;
+int client_count = 0;
+struct sockaddr_in serv_addr;
+struct sockaddr *client_address;
+int size = sizeof(serv_addr);
+char send_buffer[100];
+
 
 
 void accept_request(int index, int IP){
@@ -131,8 +139,103 @@ void retrieve(int r_IP, int id){
   //Return the data
   //TODO
 }
+
+int setup(){
+  listenfd = socket(AF_INET, SOCK_STREAM, 0);
+  setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &OPTION, sizeof(OPTION));
+
+  memset(&serv_addr, '0', sizeof(serv_addr));
+  memset(send_buffer, '0', sizeof(send_buffer));
+
+  serv_addr.sin_family = AF_INET;
+  serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
+  serv_addr.sin_port = htons(PORT);
+
+  bind(listenfd, (struct sockaddr*)&serv_addr, sizeof(serv_addr));
+
+  if(listen(listenfd, MAX_CONN_REQEUSTS) == -1){
+    puts("Failed to listen\n");
+    return -1;
+  }
+
+  puts("Server IP:");
+  print_ip();
+  puts("\n");
+
+  return 0;
+
+}
+
+/*
+  Thread entry that handles what happens when we get a new connection. Currently
+*/
+void * socketThread(void *arg)
+{
+  struct sockaddr_in* pV4Addr;
+  struct in_addr ipAddr;
+  pV4Addr = (struct sockaddr_in*) &client_address;
+  ipAddr = pV4Addr->sin_addr;
+  int newSocket = *((int *)arg);
+  char recv_buffer[1024];
+  // printf("newSocket: %d\n", newSocket);
+  recv(newSocket , recv_buffer , 1024 , 0);
+  printf("Received: %s\n", recv_buffer);
+
+  // Send message to the client socket
+  pthread_mutex_lock(&requestor_mutex);
+
+  strcpy(send_buffer, "WowzersMKII\\");
+
+  pthread_mutex_unlock(&requestor_mutex);
+  write(newSocket,send_buffer,strlen(send_buffer));
+  // sleep(1);
+  printf("Exit socketThread \n");
+
+  close(newSocket);
+  pthread_exit(NULL);
+}
+
+int server_main(){
+  int success;
+
+  char str[INET_ADDRSTRLEN];
+  struct sockaddr_storage serverStorage;
+  int serverSocket, newSocket;
+  pthread_t tid[MAX_CONN_REQEUSTS];
+  pthread_t donors[MAX_DONORS];
+
+  int i = 0;
+
+
+  while(1){
+    // connfd = accept(listenfd, (struct sockaddr *) &client_address, &size);
+    connfd = accept(listenfd, (struct sockaddr *) &client_address, &size);
+    // printf("connfd: %d\n", connfd);
+    if( pthread_create(&tid[i], NULL, socketThread, &connfd) != 0 )
+       printf("Failed to create thread\n");
+
+
+    // printf("%s\n", inet_ntop( AF_INET, &ipAddr, str, INET_ADDRSTRLEN ));
+    client_count++;
+    puts("New Client Connection\n");
+    printf("Total Connections:%d\n\n", client_count);
+
+    sleep(1);
+  }
+  return 0;
+}
+
+
 int main(){
   s = s_start();
+  int valid_setup = setup();
+  if(valid_setup != 0){
+    printf("Something went wrong with the server setup. Shutting down now.");
+    return -1;
+  }
+
+  server_main();
+
   int donor_name_1 = 2001;
   int donor_name_2 = 2002;
   int req_name_1 = 1001;

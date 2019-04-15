@@ -35,7 +35,7 @@ void print_ip() {
 
 int main(void)
 {
-  int listenfd = 0, connfd = 0, option =1 ;
+  int listenfd = 0, connfd = 0;
   int client_count = 0;
 
   struct sockaddr_in serv_addr;
@@ -45,7 +45,7 @@ int main(void)
   char send_buffer[1024];
 
   listenfd = socket(AF_INET, SOCK_STREAM, 0);
-  setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &option, sizeof(option));
+  setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &OPTION, sizeof(OPTION));
 
   memset(&serv_addr, '0', sizeof(serv_addr));
   memset(send_buffer, '0', sizeof(send_buffer));
@@ -72,7 +72,6 @@ int main(void)
     char str[INET_ADDRSTRLEN];
 
     printf("%s\n", inet_ntop( AF_INET, &ipAddr, str, INET_ADDRSTRLEN ));
-
     client_count++;
     puts("New Client Connection\n");
     printf("Total Connections:%d\n\n", client_count);
