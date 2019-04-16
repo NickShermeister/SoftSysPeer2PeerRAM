@@ -16,13 +16,35 @@ void print_message(char *message) {
 
 
 int main(void) {
-  int sockfd = 0,n = 0;
+  int sockfd=0, p=0, n=0, i, PORT;
   char receive_buffer[1024];
   struct sockaddr_in serv_addr;
-  char * send_buffer = "Hi!";
+  char* send_buffer = "Hi!";
+  char IP_ADDR[22];
+  char str_port[6];
 
   memset(receive_buffer, '0' ,sizeof(receive_buffer));
   sockfd = socket(AF_INET, SOCK_STREAM, 0);
+
+  puts("Please Enter IP Address of Server:");
+  fgets(IP_ADDR, 21, stdin);
+
+  for(i=0; i<strlen(IP_ADDR); i++) {
+    if(p) {
+      str_port[p-1] = IP_ADDR[i];
+      p++;
+    }
+
+    if(!p && IP_ADDR[i] == ':') {
+      n = i;
+      p = 1;
+    }
+  }
+
+  IP_ADDR[n] = '\0';
+
+  str_port[p-1] = '\0';
+  PORT = strtol(str_port, '\0', 10);
 
   serv_addr.sin_family = AF_INET;
   serv_addr.sin_port = htons(PORT);
