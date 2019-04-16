@@ -4,7 +4,7 @@
 
 #include "general_functions.h"
 
-void print_ip() {
+void print_ip(int PORT) {
   FILE *fp;
   char ips[1024];
   char temp[1024];

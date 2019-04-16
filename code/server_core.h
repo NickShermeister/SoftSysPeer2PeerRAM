@@ -10,8 +10,6 @@
 #include <sys/types.h>
 #include <pthread.h>
 
-int PORT = 5000;
-char* IP_ADDR = "192.168.32.209"; //Edit to your IP
 int OPTION = 1;
 int MAX_CONN_REQEUSTS = 10;
 int MAX_DONORS = 20;
