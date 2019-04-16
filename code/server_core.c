@@ -28,13 +28,11 @@ void* (*f[])(void*) = {&s_add_requestor, &s_add_donor, &s_remove_requestor, &s_r
 pthread_mutex_t requestor_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t donor_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t location_mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t socketMutex = PTHREAD_MUTEX_INITIALIZER;
+
 int IDNO = 100;
-int listenfd = 0, connfd = 0;
-int client_count = 0;
-struct sockaddr_in serv_addr;
-struct sockaddr *client_address;
-int size = sizeof(serv_addr);
-char send_buffer[100];
+int send_buffer_size = 2048;
+int recv_buffer_size = 2048;
 
 
 
@@ -59,42 +57,46 @@ void accept_request(int index, int IP){
 
 //All of the following should optionally be allowed to be executed in a separate thread
 
-void* s_add_requestor(void* r_IP){
-  int r_IP_int = *((int *) r_IP);
+void* s_add_requestor(unsigned long r_IP){
+  // int r_IP_int = *((unsigned long *) r_IP);
 
   //Should block requestor validation
   pthread_mutex_lock(&requestor_mutex);
   //Add requestor to the list of valid requestors
-  insert(s->requestors, r_IP_int, 0);
+  insert(s->requestors, r_IP, 0);
   pthread_mutex_unlock(&requestor_mutex);
+  return NULL;
 }
 
-void* s_add_donor(void* d_IP){
-  int d_IP_int = *((int *) d_IP);
+void* s_add_donor(unsigned long d_IP){
+  // int d_IP_int = *((unsigned long *) d_IP);
   //Should block donor choice and request sending
   pthread_mutex_lock(&donor_mutex);
   //Add donor to the list
-  insert(s->donors, d_IP_int, 0);
+  insert(s->donors, d_IP, 0);
   pthread_mutex_unlock(&donor_mutex);
+  return NULL;
 }
 
-void* s_remove_requestor(void* r_IP){
-  int r_IP_int = *((int *) r_IP);
+void* s_remove_requestor(unsigned long r_IP){
+  // int r_IP_int = *((unsigned long *) r_IP);
   //Should block requestor validation
   pthread_mutex_lock(&requestor_mutex);
   //Remove requestor from list of valid requestors
-  delete(s->requestors, r_IP_int);
+  delete(s->requestors, r_IP);
   pthread_mutex_unlock(&requestor_mutex);
+  return NULL;
 
 }
 
-void* s_remove_donor(void* d_IP){
-  int d_IP_int = *((int *) d_IP);
+void* s_remove_donor(unsigned long d_IP){
+  // int d_IP_int = *((unsigned long *) d_IP);
   //Should block donor validation
   pthread_mutex_lock(&donor_mutex);
   //Remove donor from list of valid donor
-  delete(s->requestors, d_IP_int);
+  delete(s->requestors, d_IP);
   pthread_mutex_unlock(&donor_mutex);
+  return NULL;
 }
 
 void store(int r_IP, void* Data, int size){
@@ -140,12 +142,19 @@ void retrieve(int r_IP, int id){
   //TODO
 }
 
+
+int listenfd = 0, connfd = 0;
+int client_count = 0;
+struct sockaddr_in serv_addr;
+struct sockaddr *client_address;
+int size = sizeof(serv_addr);
+
 int setup(){
   listenfd = socket(AF_INET, SOCK_STREAM, 0);
   setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &OPTION, sizeof(OPTION));
 
   memset(&serv_addr, '0', sizeof(serv_addr));
-  memset(send_buffer, '0', sizeof(send_buffer));
+  // memset(send_buffer, '0', sizeof(send_buffer));
 
   serv_addr.sin_family = AF_INET;
   serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
@@ -169,28 +178,42 @@ int setup(){
 /*
   Thread entry that handles what happens when we get a new connection. Currently
 */
+
 void * socketThread(void *arg)
 {
+  //Define the important local variabls
   struct sockaddr_in* pV4Addr;
   struct in_addr ipAddr;
+  char send_buffer[send_buffer_size];
+  char recv_buffer[recv_buffer_size];
+  //Copy the important information
   pV4Addr = (struct sockaddr_in*) &client_address;
   ipAddr = pV4Addr->sin_addr;
   int newSocket = *((int *)arg);
-  char recv_buffer[1024];
+  pthread_mutex_unlock(socketMutex)
+  //Okay now we can modify arg and client_address
+
   // printf("newSocket: %d\n", newSocket);
-  recv(newSocket , recv_buffer , 1024 , 0);
+  recv(newSocket , recv_buffer , recv_buffer_size , 0);
   printf("Received: %s\n", recv_buffer);
 
+  //Do different work depending on message recieved
+  //TODO
+  int mode = ((int)recv_buffer[0]) - 48;
+  if(mode < 4){//we are adding or deleting ip address
+      f[mode](ipAddr.s_addr);
+  }else if (mode = 4){
+      //TODO
+  }else if(mode = 5){
+    //TODO
+  }else{
+    printf("Uh oh. Couldnt find method");
+  }
   // Send message to the client socket
-  pthread_mutex_lock(&requestor_mutex);
-
-  strcpy(send_buffer, "WowzersMKII\\");
-
-  pthread_mutex_unlock(&requestor_mutex);
+  // strcpy(send_buffer, "WowzersMKII\\");
   write(newSocket,send_buffer,strlen(send_buffer));
-  // sleep(1);
+  //Exit
   printf("Exit socketThread \n");
-
   close(newSocket);
   pthread_exit(NULL);
 }
@@ -209,10 +232,12 @@ int server_main(){
 
   while(1){
     // connfd = accept(listenfd, (struct sockaddr *) &client_address, &size);
+    pthread_mutex_lock(socketMutex)
     connfd = accept(listenfd, (struct sockaddr *) &client_address, &size);
     // printf("connfd: %d\n", connfd);
     if( pthread_create(&tid[i], NULL, socketThread, &connfd) != 0 )
        printf("Failed to create thread\n");
+       pthread_mutex_unlock(socketMutex)
 
 
     // printf("%s\n", inet_ntop( AF_INET, &ipAddr, str, INET_ADDRSTRLEN ));

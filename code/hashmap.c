@@ -8,11 +8,11 @@
 
 int DEFAULT_SIZE = 10;
 
-int hashCode(int size, int key) {
-   return key % size;
+int hashCode(int size, unsigned long key) {
+   return (int) key % size;
 }
 
-hashmap* declare_map(int (*hashcode)(int, int)){
+hashmap* declare_map(int (*hashcode)(int, unsigned long)){
       hashmap* hm = malloc(sizeof(hashmap));
       hm->arr_size = DEFAULT_SIZE;
       hm->num_elem = 0;
@@ -42,7 +42,7 @@ DataItem *first(hashmap* hm){
  return NULL;
 }
 
-DataItem *search(hashmap* hm, int key) {
+DataItem *search(hashmap* hm, unsigned long key) {
    //get the hash
    int hashIndex = (hm->hashcode)((hm->arr_size), key);
 
@@ -61,7 +61,7 @@ DataItem *search(hashmap* hm, int key) {
    return NULL;
 }
 
-void insert(hashmap* hm,int key,int data) {
+void insert(hashmap* hm,unsigned long key,int data) {
 
    DataItem *item = (DataItem*) malloc(sizeof(DataItem));
    item->data = data;
@@ -86,7 +86,7 @@ void insert(hashmap* hm,int key,int data) {
    }
 }
 
-DataItem* delete(hashmap* hm,  int key) {
+DataItem* delete(hashmap* hm,  unsigned long key) {
 
    //get the hash
    int hashIndex = (hm->hashcode)((hm->arr_size), key);
@@ -146,7 +146,7 @@ void display(hashmap* hm) {
    for(i = 0; i<hm->arr_size; i++) {
 
       if(hm->hash_array[i] != NULL)
-         printf(" (%d,%d)",hm->hash_array[i]->key,hm->hash_array[i]->data);
+         printf(" (%li,%d)",hm->hash_array[i]->key,hm->hash_array[i]->data);
       else
          printf(" ~~ ");
    }
