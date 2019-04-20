@@ -17,11 +17,13 @@ void print_message(char *message) {
 
 int main(void) {
   int sockfd=0, p=0, n=0, i, PORT;
-  char receive_buffer[1024];
+  char receive_buffer[recv_buffer_size];
   struct sockaddr_in serv_addr;
-  char* send_buffer = "2: Hi!";
+  char * send_buffer = malloc(send_buffer_size * (sizeof(char)));
+  // [send_buffer_size] = "2: Hi!\0";
   char IP_ADDR[22];
   char str_port[6];
+  char c;
 
   memset(receive_buffer, '0' ,sizeof(receive_buffer));
   sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -57,18 +59,58 @@ int main(void) {
     puts("Connection Successful\n");
   }
 
+  puts("What mode do you wish to be in? \n0: Add Requestor\n1: Remove Requestor\n2: Add Donor\n3: Remove Donor \n");
+  // int success;
+  fgets(send_buffer, 10, stdin);
+
+  // send_buffer[0] = c;
+  // send_buffer[1] = '\0';
+
   if(write(sockfd, send_buffer, strlen(send_buffer)) < 0){
     puts("Send failed.\n");
     return 1;
   }
 
-  if(recv(sockfd, receive_buffer, 1024, 0) < 0) {
+  puts("Send success.\n");
+
+  if(recv(sockfd, receive_buffer, recv_buffer_size, 0) < 0) {
     puts("Receive failed\n");
     return 1;
   }
 
-  puts("Server Message:");
+  puts("Server Message: ");
   print_message(receive_buffer);
+
+  char fname[100];
+  FILE* fp;
+  memset(fname, 0, 100);
+  /*ask user for the name of the file*/
+  char* fileprompt = "Enter file name: ";
+  puts(fileprompt);
+  fgets(fname, 100, stdin);
+
+  // puts(fname);
+  strtok(fname, "\n");
+
+  //Opens the file from where the text will be read.
+  fp = fopen(fname, "r");
+
+  if (fp == NULL)
+    {
+        puts("Error, Unable to open the file for reading.\n");
+        return 1;
+    }
+
+    char ch;
+    while((ch = fgetc(fp)) != EOF){
+      printf("%c", ch);
+    }
+
+  fclose(fp);
+
+  puts("File closed. Shutting down client.");
+
+  free(send_buffer);
 
   return 0;
 }
