@@ -24,26 +24,13 @@ void* s_free(server* s){
   free(s);
 }
 server* s;
-void* (*f[])(void*) = {&s_add_requestor, &s_add_donor, &s_remove_requestor, &s_remove_donor};
+void* (*f[])(unsigned long) = {&s_add_requestor, &s_add_donor, &s_remove_requestor, &s_remove_donor};
 pthread_mutex_t requestor_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t donor_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t location_mutex = PTHREAD_MUTEX_INITIALIZER;
-pthread_mutex_t socketMutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t socket_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 int IDNO = 100;
-
-
-void accept_request(int index, int IP){
-  //process type of request
-  //TODO
-  //Optionally spawn child thread to handle request
-  pthread_t thread_id;
-  int *arg = malloc(sizeof(*arg));
-  *arg = IP;
-  pthread_create(&thread_id, NULL, f[index], arg);
-  //TODO
-}
-
 // void* fooAPI(void* param) {
 //   pthread_mutex_lock(&mutex);
 //   printf("Changing the shared resource now.\n");
@@ -187,7 +174,7 @@ void * socketThread(void *arg)
   pV4Addr = (struct sockaddr_in*) &client_address;
   ipAddr = pV4Addr->sin_addr;
   int newSocket = *((int *)arg);
-  pthread_mutex_unlock(socketMutex)
+  pthread_mutex_unlock(&socket_mutex);
   //Okay now we can modify arg and client_address
 
   // printf("newSocket: %d\n", newSocket);
@@ -196,15 +183,29 @@ void * socketThread(void *arg)
 
   //Do different work depending on message recieved
   //TODO
+  /*Modes
+  0: s_add_requestor
+  1: s_add_donor
+  2: s_remove_requestor
+  3: s_remove_donor
+  4: store
+  5: retrieve
+  */
   int mode = ((int)recv_buffer[0]) - 48;
   if(mode < 4){//we are adding or deleting ip address
-      printf("Mode: %d",mode)
+      //this means we only have to interpret one Message
+      //maybe we want to send a confirmation
+      printf("Mode: %d",mode);
       printf("Message: %s\n", recv_buffer);
       f[mode](ipAddr.s_addr);
   }else if (mode = 4){
+      //Store
+      //Since we are storing we may have to accept an arbitrary amount of messages
       //TODO
   }else if(mode = 5){
-    //TODO
+      //Retrieve
+      //Since we are retrieving we may have to send an arbitrary amount of packets
+      //TODO
   }else{
     printf("Uh oh. Couldnt find method");
   }
@@ -231,12 +232,12 @@ int server_main(){
 
   while(1){
     // connfd = accept(listenfd, (struct sockaddr *) &client_address, &size);
-    pthread_mutex_lock(socketMutex)
+    pthread_mutex_lock(&socket_mutex);
     connfd = accept(listenfd, (struct sockaddr *) &client_address, &size);
     // printf("connfd: %d\n", connfd);
     if( pthread_create(&tid[i], NULL, socketThread, &connfd) != 0 ){
        printf("Failed to create thread\n");
-       pthread_mutex_unlock(socketMutex);
+       pthread_mutex_unlock(&socket_mutex);
     }
     // printf("%s\n", inet_ntop( AF_INET, &ipAddr, str, INET_ADDRSTRLEN ));
     client_count++;
@@ -259,18 +260,5 @@ int main(){
 
   server_main();
 
-  int donor_name_1 = 2001;
-  int donor_name_2 = 2002;
-  int req_name_1 = 1001;
-  int req_name_2 = 1002;
-  accept_request(1,donor_name_1);
-  accept_request(1,donor_name_2);
-  accept_request(0,req_name_1);
-  accept_request(0,req_name_2);
-  sleep(1);
-  store(req_name_1, NULL, 0);
-  store(req_name_2, NULL, 0);
-  store(87, NULL, 0);
-  display(s->locations);
   return 0;
 }
