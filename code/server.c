@@ -27,7 +27,7 @@ void print_ip() {
       }
     }
 
-    printf("%s:%d\n", temp, PORT);
+    printf("%s:%d\n", temp, 5000);
   }
 
   pclose(fp);
@@ -52,7 +52,7 @@ int main(void)
 
   serv_addr.sin_family = AF_INET;
   serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
-  serv_addr.sin_port = htons(PORT);
+  serv_addr.sin_port = htons(5000);
 
   bind(listenfd, (struct sockaddr*)&serv_addr, sizeof(serv_addr));
 
