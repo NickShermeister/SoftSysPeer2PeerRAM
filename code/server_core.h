@@ -14,6 +14,9 @@ int OPTION = 1;
 int MAX_CONN_REQEUSTS = 10;
 int MAX_DONORS = 20;
 
+int send_buffer_size = 2048;
+int recv_buffer_size = 2048;
+
 void* s_add_requestor(unsigned long r_IP);
 void* s_add_donor(unsigned long d_IP);
 void* s_remove_requestor(unsigned long r_IP);
