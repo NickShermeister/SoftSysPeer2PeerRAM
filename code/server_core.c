@@ -31,9 +31,6 @@ pthread_mutex_t location_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t socketMutex = PTHREAD_MUTEX_INITIALIZER;
 
 int IDNO = 100;
-int send_buffer_size = 2048;
-int recv_buffer_size = 2048;
-
 
 
 void accept_request(int index, int IP){
