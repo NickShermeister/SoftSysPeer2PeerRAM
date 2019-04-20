@@ -19,7 +19,7 @@ int main(void) {
   int sockfd=0, p=0, n=0, i, PORT;
   char receive_buffer[1024];
   struct sockaddr_in serv_addr;
-  char* send_buffer = "Hi!";
+  char* send_buffer = "2: Hi!";
   char IP_ADDR[22];
   char str_port[6];
 

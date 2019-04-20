@@ -175,7 +175,7 @@ int setup(){
 
 }
 
-/*
+/*(*f[])(void*) = {&s_add_requestor, &s_add_donor, &s_remove_requestor, &s_remove_donor};
   Thread entry that handles what happens when we get a new connection. Currently
 */
 
@@ -201,6 +201,8 @@ void * socketThread(void *arg)
   //TODO
   int mode = ((int)recv_buffer[0]) - 48;
   if(mode < 4){//we are adding or deleting ip address
+      printf("Mode: %d",mode)
+      printf("Message: %s\n", recv_buffer);
       f[mode](ipAddr.s_addr);
   }else if (mode = 4){
       //TODO
@@ -235,11 +237,10 @@ int server_main(){
     pthread_mutex_lock(socketMutex)
     connfd = accept(listenfd, (struct sockaddr *) &client_address, &size);
     // printf("connfd: %d\n", connfd);
-    if( pthread_create(&tid[i], NULL, socketThread, &connfd) != 0 )
+    if( pthread_create(&tid[i], NULL, socketThread, &connfd) != 0 ){
        printf("Failed to create thread\n");
-       pthread_mutex_unlock(socketMutex)
-
-
+       pthread_mutex_unlock(socketMutex);
+    }
     // printf("%s\n", inet_ntop( AF_INET, &ipAddr, str, INET_ADDRSTRLEN ));
     client_count++;
     puts("New Client Connection\n");
