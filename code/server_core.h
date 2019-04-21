@@ -28,6 +28,15 @@ int send_buffer_size = 2048;
 int recv_buffer_size = 2048;
 
 void* s_add_requestor(unsigned int    r_IP);
-void* s_add_donor(unsigned int    d_IP);
+void* s_add_donor(unsigned int    d_IP, unsigned int port);
 void* s_remove_requestor(unsigned int    r_IP);
 void* s_remove_donor(unsigned int    d_IP);
+
+void my_itoa(int num, char *str)
+{
+        if(str == NULL)
+        {
+                return;
+        }
+        sprintf(str, "%d", num);
+}

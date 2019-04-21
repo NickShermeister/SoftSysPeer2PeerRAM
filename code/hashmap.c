@@ -24,7 +24,7 @@ hashmap* declare_map(int (*hashcode)(int, unsigned int   )){
 void free_map(hashmap* hm){
   for(int i =0; i< hm->arr_size; i++){
     item = hm->hash_array[i];
-    if(item != NULL && item->key != -1){
+    if(item != NULL && item->key != 0){
       free(item);
     }
   }
@@ -35,7 +35,7 @@ void free_map(hashmap* hm){
 DataItem *first(hashmap* hm){
   for(int i =0; i< hm->arr_size; i++){
     item = hm->hash_array[i];
-    if(item != NULL && item->key != -1){
+    if(item != NULL && item->key != 0){
       return item;
     }
   }
@@ -49,7 +49,7 @@ DataItem *search(hashmap* hm, unsigned int    key) {
    //move in array until an empty
    while(((hm->hash_array)[hashIndex]) != NULL) {
 
-      if(((hm->hash_array)[hashIndex])->key == key && ((hm->hash_array)[hashIndex])->data != -1)
+      if(((hm->hash_array)[hashIndex])->key == key)
          return ((hm->hash_array)[hashIndex]);
 
       ++hashIndex;
@@ -61,7 +61,7 @@ DataItem *search(hashmap* hm, unsigned int    key) {
    return NULL;
 }
 
-void insert(hashmap* hm,unsigned int    key,int data) {
+void insert(hashmap* hm,unsigned int    key,unsigned int data) {
    DataItem *item = (DataItem*) malloc(sizeof(DataItem));
    item->data = data;
    item->key = key;
@@ -69,7 +69,7 @@ void insert(hashmap* hm,unsigned int    key,int data) {
    //get the hash
    int hashIndex = (hm->hashcode)((hm->arr_size), key);
    //move in array until an empty or deleted cell
-   while(((hm->hash_array)[hashIndex]) != NULL && ((hm->hash_array)[hashIndex])->key != -1) {
+   while(((hm->hash_array)[hashIndex]) != NULL && ((hm->hash_array)[hashIndex])->key != 0) {
       //go to next cell
       ++hashIndex;
 
@@ -98,7 +98,7 @@ DataItem* delete(hashmap* hm,  unsigned int    key) {
          (hm->hash_array)[hashIndex] = dummyItem;
          (hm->num_elem)-= 1;
          if(hm->num_elem*8.0 < hm->arr_size && hm->arr_size > DEFAULT_SIZE){
-           rehash(hm, -1);
+           rehash(hm, 0);
          }
          return temp;
       }
@@ -123,7 +123,7 @@ void rehash(hashmap* hm, int dir){
   int index;
   for(int i =0; i< hm->arr_size; i++){
     item = hm->hash_array[i];
-    if(item != NULL && item->key != -1){
+    if(item != NULL && item->key != 0){
       index = (hm->hashcode)(new_arr_size, item->key);
       while(new_hash_array[index] != NULL) {
          ++index;
@@ -143,7 +143,7 @@ void display(hashmap* hm) {
    for(i = 0; i<hm->arr_size; i++) {
 
       if(hm->hash_array[i] != NULL)
-         printf(" (%ui,%d)",hm->hash_array[i]->key,hm->hash_array[i]->data);
+         printf(" (%u,%u)",hm->hash_array[i]->key,hm->hash_array[i]->data);
       else
          printf(" ~~ ");
    }
@@ -152,8 +152,8 @@ void display(hashmap* hm) {
 
 // int main() {
 //    dummyItem = (DataItem*) malloc(sizeof(DataItem));
-//    dummyItem->data = -1;
-//    dummyItem->key = -1;
+//    dummyItem->data = 0;
+//    dummyItem->key = 0;
 //    hashmap* hm = declare_map(&hashCode);
 //
 //    insert(hm, 1, 20);

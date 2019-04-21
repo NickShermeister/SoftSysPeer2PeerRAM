@@ -59,10 +59,10 @@ int main(void) {
 
   // send_buffer[0] = c;
   // send_buffer[1] = '\0';
-  char inputs_[] = {'0','1','2','3'};
-  for(int i = 0; i <4; i++){
+  char inputs_[] = {'0','3','4','4','4','2','1'};
+  for(int i = 0; i <7; i++){
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
-    
+
     if(connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr))<0) {
       puts("Error: Connection Failed\n");
       return 1;
