@@ -74,7 +74,7 @@ void* s_add_donor(unsigned int d_IP, unsigned int port){
   return NULL;
 }
 
-void store(unsigned int r_IP, unsigned int port_number, int size){
+void store(unsigned int r_IP, unsigned int r_port_number, char* recv_buffer){
   char id_str[10];
   char send_buffer[send_buffer_size];
   //Validate requestor
@@ -96,16 +96,22 @@ void store(unsigned int r_IP, unsigned int port_number, int size){
     return;
   }
   unsigned int d_IP = donor->key;
-  unsigned int port = donor->data;
+  unsigned int d_port = donor->data;
   //Save donor for id
   insert(running_server->locations, id, d_IP);
   //send id back to whoever
   my_itoa(id, id_str);
   strcpy(send_buffer, id_str);
-  write(port_number,send_buffer,strlen(send_buffer));
+  strcpy(send_buffer+10*sizeof(char), "\\");
+  write(r_port_number,send_buffer,strlen(send_buffer));
   //Send request to donor
-
-
+  printf("Our message: %s \n",recv_buffer);
+  strcpy(send_buffer, recv_buffer);
+  printf("Our buffer: %s \n",send_buffer);
+  printf("Our port: %u \n",d_port);
+  if(write(d_port,send_buffer,strlen(send_buffer))<0){
+    printf("Write failed------------------\n\n");
+  }
 }
 
 void retrieve(unsigned int r_IP, unsigned int port_number, unsigned int id){
@@ -161,8 +167,10 @@ void * socketThread(void *arg)
       // printf("Mode: %d\n",mode);
       // printf("Message: %s\n", recv_buffer);
       f_array[mode](ipAddr.s_addr);
-      strcpy(send_buffer, "Did the thing\n");
+      strcpy(send_buffer, "Did the thing\\");
       write(newSocket,send_buffer,strlen(send_buffer));
+      close(newSocket);
+
       break;
     case 3:
       s_add_donor(ipAddr.s_addr, (unsigned int)newSocket);
@@ -171,7 +179,9 @@ void * socketThread(void *arg)
       //Store
       //Since we are storing we may have to accept an arbitrary amount of messages
 
-      store(ipAddr.s_addr, (unsigned int)newSocket, 0);
+      store(ipAddr.s_addr, (unsigned int)newSocket, recv_buffer);
+      close(newSocket);
+
       //TODO
       break;
     case 5:
@@ -181,6 +191,8 @@ void * socketThread(void *arg)
       break;
     default:
       printf("Uh oh. Couldnt find method");
+      close(newSocket);
+
   }
   display(running_server->requestors);
   display(running_server->donors);
@@ -188,7 +200,6 @@ void * socketThread(void *arg)
   // Send message to the client socket
   //Exit
   printf("Exit socketThread \n");
-  close(newSocket);
 
   pthread_exit(NULL);
 }
