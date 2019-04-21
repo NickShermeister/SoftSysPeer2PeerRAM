@@ -1,12 +1,5 @@
-#include "hashmap.h"
 #include "server_core.h"
 #include "general_functions.c"
-
-typedef struct {
-  hashmap* requestors;
-  hashmap* donors;
-  hashmap* locations;
-}server;
 
 server* s_start(){
   server* s = malloc(sizeof(server));
@@ -23,9 +16,9 @@ void* s_free(server* s){
   free_map(s->locations);
   free(s);
 }
-server* s;
-// typedef void* (*f_array_type)(unsigned long);
-// f_array_type f_array[4] = {&s_add_requestor, &s_add_donor, &s_remove_requestor, &s_remove_donor};
+
+typedef void* (*f_array_type)(unsigned int   );
+f_array_type f_array[4] = {&s_add_requestor, &s_add_donor, &s_remove_requestor, &s_remove_donor};
 pthread_mutex_t requestor_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t donor_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t location_mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -42,52 +35,53 @@ int IDNO = 100;
 
 //All of the following should optionally be allowed to be executed in a separate thread
 
-void* s_add_requestor(unsigned long r_IP){
-  // int r_IP_int = *((unsigned long *) r_IP);
-
+void* s_add_requestor(unsigned int    r_IP){
+  // int r_IP_int = *((unsigned int    *) r_IP);
   //Should block requestor validation
   pthread_mutex_lock(&requestor_mutex);
   //Add requestor to the list of valid requestors
-  insert(s->requestors, r_IP, 0);
+
+
+  insert(running_server->requestors, r_IP, 0);
   pthread_mutex_unlock(&requestor_mutex);
   return NULL;
 }
 
-void* s_add_donor(unsigned long d_IP){
-  // int d_IP_int = *((unsigned long *) d_IP);
+void* s_add_donor(unsigned int    d_IP){
+  // int d_IP_int = *((unsigned int    *) d_IP);
   //Should block donor choice and request sending
   pthread_mutex_lock(&donor_mutex);
   //Add donor to the list
-  insert(s->donors, d_IP, 0);
+  insert(running_server->donors, d_IP, 0);
   pthread_mutex_unlock(&donor_mutex);
   return NULL;
 }
 
-void* s_remove_requestor(unsigned long r_IP){
-  // int r_IP_int = *((unsigned long *) r_IP);
+void* s_remove_requestor(unsigned int    r_IP){
+  // int r_IP_int = *((unsigned int    *) r_IP);
   //Should block requestor validation
   printf("in add req\n");
   pthread_mutex_lock(&requestor_mutex);
   //Remove requestor from list of valid requestors
-  delete(s->requestors, r_IP);
+  delete(running_server->requestors, r_IP);
   pthread_mutex_unlock(&requestor_mutex);
   return NULL;
 
 }
 
-void* s_remove_donor(unsigned long d_IP){
-  // int d_IP_int = *((unsigned long *) d_IP);
+void* s_remove_donor(unsigned int    d_IP){
+  // int d_IP_int = *((unsigned int    *) d_IP);
   //Should block donor validation
   pthread_mutex_lock(&donor_mutex);
   //Remove donor from list of valid donor
-  delete(s->requestors, d_IP);
+  delete(running_server->requestors, d_IP);
   pthread_mutex_unlock(&donor_mutex);
   return NULL;
 }
 
 void store(int r_IP, int port_number, int size){
   //Validate requestor
-  if(search(s->requestors, r_IP) == NULL){
+  if(search(running_server->requestors, r_IP) == NULL){
     //We don't know who you are
     printf("Requestor not recognized: %i\n", r_IP);
     return;
@@ -99,7 +93,7 @@ void store(int r_IP, int port_number, int size){
   //Choose Donor from the list
 
   //TODO do this better
-  DataItem* donor = first(s->donors);
+  DataItem* donor = first(running_server->donors);
   if(donor == NULL){
     //no donors :()
     return;
@@ -108,18 +102,18 @@ void store(int r_IP, int port_number, int size){
   //Send request to donor
 
   //Save donor for id
-  insert(s->locations, id, d_IP);
+  insert(running_server->locations, id, d_IP);
 }
 
 void retrieve(int r_IP, int port_number, int id){
   // Validate requestor
-  if (search(s->requestors, r_IP) == NULL) {
+  if (search(running_server->requestors, r_IP) == NULL) {
     return;
   }
   //Retrieve donor
-  DataItem* loc = search(s->locations, id);
+  DataItem* loc = search(running_server->locations, id);
   //Validate donor
-  if (search(s->donors, loc->data) == NULL) {
+  if (search(running_server->donors, loc->data) == NULL) {
     return;
   }
   //Make a request to the right IP address.
@@ -176,13 +170,13 @@ void * socketThread(void *arg)
   pV4Addr = (struct sockaddr_in*) &client_address;
   ipAddr = pV4Addr->sin_addr;
   int newSocket = *((int *)arg);
-  pthread_mutex_unlock(&socket_mutex);
   //Okay now we can modify arg and client_address
+  pthread_mutex_unlock(&socket_mutex);
+
 
   printf("newSocket: %d\n", newSocket);
   recv(newSocket , recv_buffer , recv_buffer_size , 0);
   printf("Received: %s\n", recv_buffer);
-
   //Do different work depending on message recieved
   //TODO
   /*Modes
@@ -197,14 +191,14 @@ void * socketThread(void *arg)
   if(mode < 4){//we are adding or deleting ip address
       //this means we only have to interpret one Message
       //maybe we want to send a confirmation
-      printf("Mode: %d",mode);
+      printf("Mode: %d\n",mode);
       printf("Message: %s\n", recv_buffer);
+
       // (*f_t) = (f_array[mode]);
       // printf("cast");
-
-      s_add_requestor(ipAddr.s_addr);
-      printf("Should display");
-      display(s->requestors);
+      f_array[mode](ipAddr.s_addr);
+      display(running_server->requestors);
+      display(running_server->donors);
   }else if (mode = 4){
       //Store
       //Since we are storing we may have to accept an arbitrary amount of messages
@@ -222,6 +216,7 @@ void * socketThread(void *arg)
   //Exit
   printf("Exit socketThread \n");
   close(newSocket);
+
   pthread_exit(NULL);
 }
 
@@ -236,11 +231,13 @@ int server_main(){
 
   int i = 0;
 
-
   while(1){
     // connfd = accept(listenfd, (struct sockaddr *) &client_address, &size);
+    printf("Waiting\n");
+
     pthread_mutex_lock(&socket_mutex);
-    printf("Waiting");
+    printf("Waiting for acceptance\n");
+
     connfd = accept(listenfd, (struct sockaddr *) &client_address, &size);
     printf("connfd: %d\n", connfd);
     if( pthread_create(&tid[i], NULL, socketThread, &connfd) != 0 ){
@@ -252,21 +249,16 @@ int server_main(){
     puts("New Client Connection\n");
     printf("Total Connections:%d\n\n", client_count);
 
-    sleep(1);
   }
   return 0;
 }
 
 
 int main(){
-  pthread_attr_t attr;
-  int stack_size = 50000000;
 
-  pthread_attr_init(&attr);
-  pthread_attr_setstacksize(&attr, stack_size);
+  // Adjust stack size
+  running_server = s_start();
 
-  //Adjust stack size
-  s = s_start();
   int valid_setup = setup();
   if(valid_setup != 0){
     printf("Something went wrong with the server setup. Shutting down now.");

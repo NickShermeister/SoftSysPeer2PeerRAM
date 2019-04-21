@@ -2,14 +2,14 @@
 
 typedef struct {
    int data;
-   unsigned long key;
+   unsigned int    key;
 }DataItem;
 
 typedef struct{
   DataItem** hash_array;
   int arr_size;
   float num_elem;
-  int (*hashcode) (int, unsigned long);
+  int (*hashcode) (int, unsigned int   );
 }hashmap;
 
 extern int DEFAULT_SIZE;
@@ -18,10 +18,10 @@ DataItem* item;
 
 void rehash(hashmap* hm, int dir);
 void display(hashmap* hm);
-DataItem* delete(hashmap* hm,  unsigned long key);
-void insert(hashmap* hm,unsigned long key,int data);
-DataItem *search(hashmap* hm, unsigned long key);
-hashmap* declare_map(int (*hashcode)(int, unsigned long));
-int hashCode(int size, unsigned long key);
+DataItem* delete(hashmap* hm,  unsigned int    key);
+void insert(hashmap* hm,unsigned int    key,int data);
+DataItem *search(hashmap* hm, unsigned int    key);
+hashmap* declare_map(int (*hashcode)(int, unsigned int   ));
+int hashCode(int size, unsigned int    key);
 void free_map(hashmap* hm);
 DataItem *first(hashmap* hm);

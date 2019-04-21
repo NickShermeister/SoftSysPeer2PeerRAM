@@ -8,11 +8,11 @@
 
 int DEFAULT_SIZE = 10;
 
-int hashCode(int size, unsigned long key) {
-   return (int) key % size;
+int hashCode(int size, unsigned int    key) {
+   return (int) (key % size);
 }
 
-hashmap* declare_map(int (*hashcode)(int, unsigned long)){
+hashmap* declare_map(int (*hashcode)(int, unsigned int   )){
       hashmap* hm = malloc(sizeof(hashmap));
       hm->arr_size = DEFAULT_SIZE;
       hm->num_elem = 0;
@@ -42,7 +42,7 @@ DataItem *first(hashmap* hm){
  return NULL;
 }
 
-DataItem *search(hashmap* hm, unsigned long key) {
+DataItem *search(hashmap* hm, unsigned int    key) {
    //get the hash
    int hashIndex = (hm->hashcode)((hm->arr_size), key);
 
@@ -61,15 +61,13 @@ DataItem *search(hashmap* hm, unsigned long key) {
    return NULL;
 }
 
-void insert(hashmap* hm,unsigned long key,int data) {
-
+void insert(hashmap* hm,unsigned int    key,int data) {
    DataItem *item = (DataItem*) malloc(sizeof(DataItem));
    item->data = data;
    item->key = key;
 
    //get the hash
    int hashIndex = (hm->hashcode)((hm->arr_size), key);
-
    //move in array until an empty or deleted cell
    while(((hm->hash_array)[hashIndex]) != NULL && ((hm->hash_array)[hashIndex])->key != -1) {
       //go to next cell
@@ -78,7 +76,6 @@ void insert(hashmap* hm,unsigned long key,int data) {
       //wrap around the table
       hashIndex %= hm->arr_size;
    }
-
    ((hm->hash_array)[hashIndex]) = item;
    (hm->num_elem)+= 1;
    if(hm->num_elem*2.0 > hm->arr_size){
@@ -86,7 +83,7 @@ void insert(hashmap* hm,unsigned long key,int data) {
    }
 }
 
-DataItem* delete(hashmap* hm,  unsigned long key) {
+DataItem* delete(hashmap* hm,  unsigned int    key) {
 
    //get the hash
    int hashIndex = (hm->hashcode)((hm->arr_size), key);
@@ -146,7 +143,7 @@ void display(hashmap* hm) {
    for(i = 0; i<hm->arr_size; i++) {
 
       if(hm->hash_array[i] != NULL)
-         printf(" (%li,%d)",hm->hash_array[i]->key,hm->hash_array[i]->data);
+         printf(" (%ui,%d)",hm->hash_array[i]->key,hm->hash_array[i]->data);
       else
          printf(" ~~ ");
    }

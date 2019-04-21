@@ -59,27 +59,33 @@ int main(void) {
     puts("Connection Successful\n");
   }
 
-  puts("What mode do you wish to be in? \n0: Add Requestor\n1: Remove Requestor\n2: Add Donor\n3: Remove Donor \n");
-  // int success;
-  fgets(send_buffer, 10, stdin);
+  // puts("What mode do you wish to be in? \n0: Add Requestor\n1: Remove Requestor\n2: Add Donor\n3: Remove Donor \n");
+  // // int success;
+  // fgets(send_buffer, 10, stdin);
 
   // send_buffer[0] = c;
   // send_buffer[1] = '\0';
+  char inputs_[] = {'0','1','2','3'};
+  for(int i = 0; i <4; i++){
+    send_buffer[0] = inputs_[i];
+    if(write(sockfd, send_buffer, strlen(send_buffer)) < 0){
+      puts("Send failed.\n");
+      return 1;
+    }
 
-  if(write(sockfd, send_buffer, strlen(send_buffer)) < 0){
-    puts("Send failed.\n");
-    return 1;
+    puts("Send success.\n");
+
+    if(recv(sockfd, receive_buffer, recv_buffer_size, 0) < 0) {
+      puts("Receive failed\n");
+      return 1;
+    }
+    puts("Server Message: ");
+    print_message(receive_buffer);
+    sleep(1);
+    
   }
 
-  puts("Send success.\n");
 
-  if(recv(sockfd, receive_buffer, recv_buffer_size, 0) < 0) {
-    puts("Receive failed\n");
-    return 1;
-  }
-
-  puts("Server Message: ");
-  print_message(receive_buffer);
 
   char fname[100];
   FILE* fp;
