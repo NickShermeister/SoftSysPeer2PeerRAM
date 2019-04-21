@@ -1,4 +1,4 @@
-all: server_core client server
+all: server_core client
 
 server_core: server_core.c server_core.h hashmap.c hashmap.h
 	gcc server_core.c hashmap.c -o server_core -lpthread
@@ -9,5 +9,5 @@ server_core: server_core.c server_core.h hashmap.c hashmap.h
 client: client.c server_core.h
 	gcc client.c -o client
 
-server: server.c server_core.h
-	gcc server.c -o server
+# server: server.c server_core.h
+# 	gcc server.c -o server

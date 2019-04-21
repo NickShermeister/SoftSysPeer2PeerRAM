@@ -9,6 +9,8 @@
 #include <string.h>
 #include <sys/types.h>
 #include <pthread.h>
+#include <stdlib.h>
+
 
 int OPTION = 1;
 int MAX_CONN_REQEUSTS = 10;
