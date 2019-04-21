@@ -25,9 +25,6 @@ int main(void) {
   char str_port[6];
   char c;
 
-  memset(receive_buffer, '0' ,sizeof(receive_buffer));
-  sockfd = socket(AF_INET, SOCK_STREAM, 0);
-
   puts("Please Enter IP Address of Server:");
   fgets(IP_ADDR, 21, stdin);
 
@@ -48,16 +45,13 @@ int main(void) {
   str_port[p-1] = '\0';
   PORT = strtol(str_port, '\0', 10);
 
+  memset(receive_buffer, '0' ,sizeof(receive_buffer));
+
   serv_addr.sin_family = AF_INET;
   serv_addr.sin_port = htons(PORT);
   serv_addr.sin_addr.s_addr = inet_addr(IP_ADDR);
 
-  if(connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr))<0) {
-    puts("Error: Connection Failed\n");
-    return 1;
-  } else {
-    puts("Connection Successful\n");
-  }
+
 
   // puts("What mode do you wish to be in? \n0: Add Requestor\n1: Remove Requestor\n2: Add Donor\n3: Remove Donor \n");
   // // int success;
@@ -67,6 +61,14 @@ int main(void) {
   // send_buffer[1] = '\0';
   char inputs_[] = {'0','1','2','3'};
   for(int i = 0; i <4; i++){
+    sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    
+    if(connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr))<0) {
+      puts("Error: Connection Failed\n");
+      return 1;
+    } else {
+      puts("Connection Successful\n");
+    }
     send_buffer[0] = inputs_[i];
     if(write(sockfd, send_buffer, strlen(send_buffer)) < 0){
       puts("Send failed.\n");
@@ -81,8 +83,9 @@ int main(void) {
     }
     puts("Server Message: ");
     print_message(receive_buffer);
+    close(sockfd);
     sleep(1);
-    
+
   }
 
 

@@ -25,14 +25,6 @@ pthread_mutex_t location_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t socket_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 int IDNO = 100;
-// void* fooAPI(void* param) {
-//   pthread_mutex_lock(&mutex);
-//   printf("Changing the shared resource now.\n");
-//   sharedResource = 42;
-//   pthread_mutex_unlock(&mutex);
-//   return 0;
-// }
-
 //All of the following should optionally be allowed to be executed in a separate thread
 
 void* s_add_requestor(unsigned int    r_IP){
@@ -74,7 +66,7 @@ void* s_remove_donor(unsigned int    d_IP){
   //Should block donor validation
   pthread_mutex_lock(&donor_mutex);
   //Remove donor from list of valid donor
-  delete(running_server->requestors, d_IP);
+  delete(running_server->donors, d_IP);
   pthread_mutex_unlock(&donor_mutex);
   return NULL;
 }
@@ -155,7 +147,7 @@ int setup(){
 
 }
 
-/*(*f[])(void*) = {&s_add_requestor, &s_add_donor, &s_remove_requestor, &s_remove_donor};
+/*
   Thread entry that handles what happens when we get a new connection. Currently
 */
 
