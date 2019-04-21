@@ -24,7 +24,8 @@ void* s_free(server* s){
   free(s);
 }
 server* s;
-void* (*f[])(unsigned long) = {&s_add_requestor, &s_add_donor, &s_remove_requestor, &s_remove_donor};
+// typedef void* (*f_array_type)(unsigned long);
+// f_array_type f_array[4] = {&s_add_requestor, &s_add_donor, &s_remove_requestor, &s_remove_donor};
 pthread_mutex_t requestor_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t donor_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t location_mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -65,6 +66,7 @@ void* s_add_donor(unsigned long d_IP){
 void* s_remove_requestor(unsigned long r_IP){
   // int r_IP_int = *((unsigned long *) r_IP);
   //Should block requestor validation
+  printf("in add req\n");
   pthread_mutex_lock(&requestor_mutex);
   //Remove requestor from list of valid requestors
   delete(s->requestors, r_IP);
@@ -83,7 +85,7 @@ void* s_remove_donor(unsigned long d_IP){
   return NULL;
 }
 
-void store(int r_IP, void* Data, int size){
+void store(int r_IP, int port_number, int size){
   //Validate requestor
   if(search(s->requestors, r_IP) == NULL){
     //We don't know who you are
@@ -104,12 +106,12 @@ void store(int r_IP, void* Data, int size){
   }
   int d_IP = donor->key;
   //Send request to donor
-  //TODO by Nick and Nate
+
   //Save donor for id
   insert(s->locations, id, d_IP);
 }
 
-void retrieve(int r_IP, int id){
+void retrieve(int r_IP, int port_number, int id){
   // Validate requestor
   if (search(s->requestors, r_IP) == NULL) {
     return;
@@ -177,7 +179,7 @@ void * socketThread(void *arg)
   pthread_mutex_unlock(&socket_mutex);
   //Okay now we can modify arg and client_address
 
-  // printf("newSocket: %d\n", newSocket);
+  printf("newSocket: %d\n", newSocket);
   recv(newSocket , recv_buffer , recv_buffer_size , 0);
   printf("Received: %s\n", recv_buffer);
 
@@ -197,7 +199,12 @@ void * socketThread(void *arg)
       //maybe we want to send a confirmation
       printf("Mode: %d",mode);
       printf("Message: %s\n", recv_buffer);
-      f[mode](ipAddr.s_addr);
+      // (*f_t) = (f_array[mode]);
+      // printf("cast");
+
+      s_add_requestor(ipAddr.s_addr);
+      printf("Should display");
+      display(s->requestors);
   }else if (mode = 4){
       //Store
       //Since we are storing we may have to accept an arbitrary amount of messages
@@ -210,7 +217,7 @@ void * socketThread(void *arg)
     printf("Uh oh. Couldnt find method");
   }
   // Send message to the client socket
-  // strcpy(send_buffer, "WowzersMKII\\");
+  strcpy(send_buffer, "WowzersMKII\\");
   write(newSocket,send_buffer,strlen(send_buffer));
   //Exit
   printf("Exit socketThread \n");
@@ -233,8 +240,9 @@ int server_main(){
   while(1){
     // connfd = accept(listenfd, (struct sockaddr *) &client_address, &size);
     pthread_mutex_lock(&socket_mutex);
+    printf("Waiting");
     connfd = accept(listenfd, (struct sockaddr *) &client_address, &size);
-    // printf("connfd: %d\n", connfd);
+    printf("connfd: %d\n", connfd);
     if( pthread_create(&tid[i], NULL, socketThread, &connfd) != 0 ){
        printf("Failed to create thread\n");
        pthread_mutex_unlock(&socket_mutex);
@@ -251,6 +259,13 @@ int server_main(){
 
 
 int main(){
+  pthread_attr_t attr;
+  int stack_size = 50000000;
+
+  pthread_attr_init(&attr);
+  pthread_attr_setstacksize(&attr, stack_size);
+
+  //Adjust stack size
   s = s_start();
   int valid_setup = setup();
   if(valid_setup != 0){
