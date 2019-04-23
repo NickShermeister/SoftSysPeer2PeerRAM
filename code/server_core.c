@@ -37,7 +37,10 @@ void* s_add_requestor(unsigned int    r_IP){
   //Should block requestor validation
   pthread_mutex_lock(&requestor_mutex);
   //Add requestor to the list of valid requestors
-  insert(running_server->requestors, r_IP, 0);
+
+  printf("in add requestor\n");
+  fflush(stdout);
+  insert(running_server->requestors, r_IP, NULL);
   pthread_mutex_unlock(&requestor_mutex);
   return NULL;
 }
@@ -69,7 +72,9 @@ void* s_add_donor(unsigned int d_IP, unsigned int port){
   //Should block donor choice and request sending
   pthread_mutex_lock(&donor_mutex);
   //Add donor to the list
-  insert(running_server->donors, d_IP, port);
+  unsigned int * p = malloc(sizeof(unsigned int));
+  *p = port;
+  insert(running_server->donors, d_IP, (void *)p);
   pthread_mutex_unlock(&donor_mutex);
   return NULL;
 }
@@ -77,6 +82,7 @@ void* s_add_donor(unsigned int d_IP, unsigned int port){
 void store(unsigned int r_IP, unsigned int r_port_number, char* recv_buffer){
   char id_str[10];
   char send_buffer[send_buffer_size];
+  int c_size = sizeof(char);
   //Validate requestor
   if(search(running_server->requestors, r_IP) == NULL){
     //We don't know who you are
@@ -95,21 +101,26 @@ void store(unsigned int r_IP, unsigned int r_port_number, char* recv_buffer){
     //no donors :()
     return;
   }
-  unsigned int d_IP = donor->key;
-  unsigned int d_port = donor->data;
+  unsigned int * p = malloc(sizeof(unsigned int));
+  *p = donor->key;
+  unsigned int d_port = *(unsigned int *)(donor->data);
   //Save donor for id
-  insert(running_server->locations, id, d_IP);
+  insert(running_server->locations, id, p);
+  strcpy(send_buffer, "1\0");//Mode 1 for donors says we're sending data
   //send id back to whoever
+
+
   my_itoa(id, id_str);
-  strcpy(send_buffer, id_str);
-  strcpy(send_buffer+10*sizeof(char), "\\");
-  write(r_port_number,send_buffer,strlen(send_buffer));
+  id_str[3] = '\0';
+  write(r_port_number,id_str,strlen(id_str));
+  strcpy(send_buffer + (c_size*2) , id_str);
+  strcpy(send_buffer+6*c_size, recv_buffer + 2* c_size);
+
   //Send request to donor
   printf("Our message: %s \n",recv_buffer);
-  strcpy(send_buffer, recv_buffer);
   printf("Our buffer: %s \n",send_buffer);
   printf("Our port: %u \n",d_port);
-  if(write(d_port,send_buffer,strlen(send_buffer))<0){
+  if(write(d_port,send_buffer,6 + strlen(send_buffer+6*c_size))<0){
     printf("Write failed------------------\n\n");
   }
 }
@@ -124,7 +135,7 @@ void retrieve(unsigned int r_IP, unsigned int port_number, unsigned int id){
   //Retrieve donor
   DataItem* loc = search(running_server->locations, id);
   //Validate donor
-  DataItem* donor_info = search(running_server->donors, loc->data);
+  DataItem* donor_info = search(running_server->donors, *(unsigned int *)loc->data);
   if (donor_info == NULL) {
     return;
   }
@@ -167,6 +178,8 @@ void * socketThread(void *arg)
       // printf("Mode: %d\n",mode);
       // printf("Message: %s\n", recv_buffer);
       f_array[mode](ipAddr.s_addr);
+      printf("After function call \n");
+      fflush(stdout);
       strcpy(send_buffer, "Did the thing\\");
       write(newSocket,send_buffer,strlen(send_buffer));
       close(newSocket);
@@ -194,12 +207,16 @@ void * socketThread(void *arg)
       close(newSocket);
 
   }
+  printf("After Switch Statement \n");
+  fflush(stdout);
+  //
   display(running_server->requestors);
   display(running_server->donors);
   display(running_server->locations);
   // Send message to the client socket
   //Exit
   printf("Exit socketThread \n");
+  fflush(stdout);
 
   pthread_exit(NULL);
 }

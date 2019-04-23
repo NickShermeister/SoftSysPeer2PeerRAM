@@ -1,7 +1,7 @@
 
 
 typedef struct {
-   unsigned int data;
+   void* data;
    unsigned int    key;
 }DataItem;
 
@@ -19,7 +19,7 @@ DataItem* item;
 void rehash(hashmap* hm, int dir);
 void display(hashmap* hm);
 DataItem* delete(hashmap* hm,  unsigned int    key);
-void insert(hashmap* hm,unsigned int    key,unsigned int data);
+void insert(hashmap* hm,unsigned int    key,void* data);
 DataItem *search(hashmap* hm, unsigned int    key);
 hashmap* declare_map(int (*hashcode)(int, unsigned int   ));
 int hashCode(int size, unsigned int    key);

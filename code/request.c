@@ -67,7 +67,7 @@ int main(void) {
   //Add self as donor
   sockfd = socket(AF_INET, SOCK_STREAM, 0);
   connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr));
-  strcpy(send_buffer, "4This is the message we're saving\\");
+  strcpy(send_buffer, "4_This is the message we're saving\\");
   write(sockfd, send_buffer, strlen(send_buffer));
 
   if(recv(sockfd, receive_buffer, recv_buffer_size, 0) < 0) {

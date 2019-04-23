@@ -9,7 +9,7 @@ server_core: server_core.c server_core.h hashmap.c hashmap.h
 request: request.c server_core.h
 	gcc request.c -o request
 
-donate: donate.c server_core.h
-	gcc donate.c -o donate
+donate: donate.c server_core.h hashmap.c
+	gcc donate.c hashmap.c -o donate
 # server: server.c server_core.h
 # 	gcc server.c -o server

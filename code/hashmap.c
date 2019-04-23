@@ -61,10 +61,13 @@ DataItem *search(hashmap* hm, unsigned int    key) {
    return NULL;
 }
 
-void insert(hashmap* hm,unsigned int    key,unsigned int data) {
+void insert(hashmap* hm,unsigned int    key,void* data) {
    DataItem *item = (DataItem*) malloc(sizeof(DataItem));
    item->data = data;
    item->key = key;
+   printf("Shallow into insert\n");
+   fflush(stdout);
+
 
    //get the hash
    int hashIndex = (hm->hashcode)((hm->arr_size), key);
@@ -76,11 +79,15 @@ void insert(hashmap* hm,unsigned int    key,unsigned int data) {
       //wrap around the table
       hashIndex %= hm->arr_size;
    }
+   printf("Deep into insert\n");
+   fflush(stdout);
    ((hm->hash_array)[hashIndex]) = item;
    (hm->num_elem)+= 1;
    if(hm->num_elem*2.0 > hm->arr_size){
      rehash(hm, 1);
    }
+   printf("End of insert\n");
+   fflush(stdout);
 }
 
 DataItem* delete(hashmap* hm,  unsigned int    key) {
@@ -143,7 +150,12 @@ void display(hashmap* hm) {
    for(i = 0; i<hm->arr_size; i++) {
 
       if(hm->hash_array[i] != NULL)
-         printf(" (%u,%u)",hm->hash_array[i]->key,hm->hash_array[i]->data);
+          if((hm->hash_array[i]->data == NULL)){
+            printf(" (%u)",hm->hash_array[i]->key);
+          }else{
+            printf(" (%u,%u)",hm->hash_array[i]->key,*(unsigned int *)(hm->hash_array[i]->data));
+          }
+
       else
          printf(" ~~ ");
    }
