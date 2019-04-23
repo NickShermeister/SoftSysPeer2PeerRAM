@@ -1,4 +1,4 @@
-# Project Update
+# Project Update on Peer 2 Peer RAM Sharing
 
 ## Nicholas Colby Sherman, Nate Sampo, George Nicholas Steelman, Prava Dhulipalla
 
