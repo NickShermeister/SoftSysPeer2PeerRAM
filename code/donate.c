@@ -59,7 +59,7 @@ int main(void) {
   str_port[p-1] = '\0';
   PORT = strtol(str_port, '\0', 10);
 
-  memset(receive_buffer, '0' ,sizeof(receive_buffer));
+  memset(receive_buffer, '\0' ,sizeof(receive_buffer));
 
   serv_addr.sin_family = AF_INET;
   serv_addr.sin_port = htons(PORT);
@@ -73,6 +73,7 @@ int main(void) {
 
   //Actually accept requests
   while(1){
+    memset(receive_buffer, '\0' ,sizeof(receive_buffer));
     if(recv(sockfd, receive_buffer, recv_buffer_size, 0) < 0) {
       printf("Receive failed: port %d\n", sockfd);
     }else{
@@ -94,7 +95,9 @@ int main(void) {
           break;
         case 2:
           //Sending data back
+          print_message(receive_buffer);
           ID = atoi(receive_buffer+2*(sizeof(char)));
+          printf("ID: %u", ID);
           DataItem* d = search(hm, ID);
           if(d==NULL){
             printf("Yikes");

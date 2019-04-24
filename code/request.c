@@ -64,12 +64,31 @@ int main(void) {
   puts("Server Message: ");
   print_message(receive_buffer);
   close(sockfd);
-  //Add self as donor
+  //Save message
   sockfd = socket(AF_INET, SOCK_STREAM, 0);
   connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr));
   strcpy(send_buffer, "4_This is the message we're saving\\");
   write(sockfd, send_buffer, strlen(send_buffer));
-
+  memset(receive_buffer, '\0' ,sizeof(receive_buffer));
+  memset(send_buffer, '\0' ,sizeof(send_buffer));
+  if(recv(sockfd, receive_buffer, recv_buffer_size, 0) < 0) {
+    puts("Receive failed\n");
+    return 1;
+  }
+  puts("Server Message: ");
+  print_message(receive_buffer);
+  int file_id = atoi(receive_buffer);
+  close(sockfd);
+  //Request Message
+  sockfd = socket(AF_INET, SOCK_STREAM, 0);
+  connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr));
+  strcpy(send_buffer, "5_");
+  receive_buffer[3] = '\0';
+  receive_buffer[4] = '\\';
+  strcpy(send_buffer + 2, receive_buffer);
+  print_message(send_buffer);
+  write(sockfd, send_buffer, 3 + strlen(receive_buffer));
+  memset(receive_buffer, '\0' ,sizeof(receive_buffer));
   if(recv(sockfd, receive_buffer, recv_buffer_size, 0) < 0) {
     puts("Receive failed\n");
     return 1;

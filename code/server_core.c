@@ -125,7 +125,12 @@ void store(unsigned int r_IP, unsigned int r_port_number, char* recv_buffer){
   }
 }
 
-void retrieve(unsigned int r_IP, unsigned int port_number, unsigned int id){
+void retrieve(unsigned int r_IP, unsigned int r_port_number, char* message){
+  char send_buffer[send_buffer_size];
+  char id_str[10];
+  unsigned int id = atoi(message + 2);
+
+
   // Validate requestor
   if (search(running_server->requestors, r_IP) == NULL) {
     printf("Requestor not recognized: %i\n", r_IP);
@@ -140,8 +145,18 @@ void retrieve(unsigned int r_IP, unsigned int port_number, unsigned int id){
     return;
   }
   //Make a request to the right IP address.
-  //TODO for somebody and Nate
+  unsigned int d_port = *(unsigned int *)(donor_info->data);
+  strcpy(send_buffer, "2\0");//Mode 1 for donors says we're sending data
+  //send id back to whoever
+
+  strcpy(send_buffer + (sizeof(char)*2) , message+2);
+  send_buffer[5] = '\0';
+  send_buffer[6] = '\\';
+  write(d_port,send_buffer,7);
+  recv(d_port , send_buffer , send_buffer_size , 0);
   //Return the data
+  write(r_port_number, send_buffer,strlen(send_buffer));
+
   //TODO
 }
 
@@ -155,7 +170,6 @@ void * socketThread(void *arg)
   struct sockaddr_in* pV4Addr;
   struct in_addr ipAddr;
   char send_buffer[send_buffer_size];
-
   char recv_buffer[recv_buffer_size];
   //Copy the important information
   pV4Addr = (struct sockaddr_in*) &client_address;
@@ -199,6 +213,8 @@ void * socketThread(void *arg)
       break;
     case 5:
       //Retrieve
+      retrieve(ipAddr.s_addr, (unsigned int)newSocket, recv_buffer);
+      close(newSocket);
       //Since we are retrieving we may have to send an arbitrary amount of packets
       //TODO
       break;
@@ -207,16 +223,12 @@ void * socketThread(void *arg)
       close(newSocket);
 
   }
-  printf("After Switch Statement \n");
-  fflush(stdout);
   //
   display(running_server->requestors);
   display(running_server->donors);
   display(running_server->locations);
   // Send message to the client socket
   //Exit
-  printf("Exit socketThread \n");
-  fflush(stdout);
 
   pthread_exit(NULL);
 }
