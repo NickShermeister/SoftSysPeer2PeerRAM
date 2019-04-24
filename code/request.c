@@ -14,12 +14,73 @@ void print_message(char *message) {
   puts("\n");
 }
 
+void become_requestor(struct sockaddr_in serv_addr){
+  //Add self as requestor
+  char send_buffer[send_buffer_size];
+  char receive_buffer[recv_buffer_size];
+  int sockfd = socket(AF_INET, SOCK_STREAM, 0);
+  connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr));
+  strcpy(send_buffer, "0\0");
+  write(sockfd, send_buffer, strlen(send_buffer));
+
+  if(recv(sockfd, receive_buffer, recv_buffer_size, 0) < 0) {
+    puts("Receive failed\n");
+    return;
+  }
+  puts("Server Message: ");
+  print_message(receive_buffer);
+  close(sockfd);
+}
+
+unsigned int store(struct sockaddr_in serv_addr,char* stored_string){
+  //Save message
+  char send_buffer[send_buffer_size];
+  char receive_buffer[recv_buffer_size];
+  int sockfd = socket(AF_INET, SOCK_STREAM, 0);
+  connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr));
+  strcpy(send_buffer, "4_");
+  strcpy(send_buffer+2, stored_string);
+  send_buffer[2+strlen(stored_string)] = '\\';
+  write(sockfd, send_buffer, strlen(send_buffer));
+  if(recv(sockfd, receive_buffer, recv_buffer_size, 0) < 0) {
+    puts("Receive failed\n");
+    return 0;
+  }
+  puts("Server Message: ");
+  print_message(receive_buffer);
+  unsigned int file_id = atoi(receive_buffer);
+  close(sockfd);
+  return file_id;
+}
+
+char* retrieve(struct sockaddr_in serv_addr, unsigned int ID){
+  //Request Message
+  char send_buffer[send_buffer_size];
+  char* receive_buffer = malloc(recv_buffer_size);
+  char id_str[5];
+  int sockfd = socket(AF_INET, SOCK_STREAM, 0);
+  connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr));
+  strcpy(send_buffer, "5_");
+  my_itoa(ID, id_str);
+  id_str[3] = '\0';
+  id_str[4] = '\\';
+  strcpy(send_buffer + 2, id_str);
+  print_message(send_buffer);
+  write(sockfd, send_buffer, 7);
+  if(recv(sockfd, receive_buffer, recv_buffer_size, 0) < 0) {
+    puts("Receive failed\n");
+    return NULL;
+  }
+  puts("Server Message: ");
+  print_message(receive_buffer);
+  close(sockfd);
+  return receive_buffer;
+}
 
 int main(void) {
   int sockfd=0, p=0, n=0, i, PORT;
-  char receive_buffer[recv_buffer_size];
   struct sockaddr_in serv_addr;
-  char * send_buffer = malloc(send_buffer_size * (sizeof(char)));
+  char * my_message = malloc(send_buffer_size );
   // [send_buffer_size] = "2: Hi!\0";
   char IP_ADDR[22];
   char str_port[6];
@@ -45,60 +106,16 @@ int main(void) {
   str_port[p-1] = '\0';
   PORT = strtol(str_port, '\0', 10);
 
-  memset(receive_buffer, '0' ,sizeof(receive_buffer));
-
   serv_addr.sin_family = AF_INET;
   serv_addr.sin_port = htons(PORT);
   serv_addr.sin_addr.s_addr = inet_addr(IP_ADDR);
 
-  //Add self as requestor
-  sockfd = socket(AF_INET, SOCK_STREAM, 0);
-  connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr));
-  strcpy(send_buffer, "0");
-  write(sockfd, send_buffer, strlen(send_buffer));
-
-  if(recv(sockfd, receive_buffer, recv_buffer_size, 0) < 0) {
-    puts("Receive failed\n");
-    return 1;
-  }
-  puts("Server Message: ");
-  print_message(receive_buffer);
-  close(sockfd);
-  //Save message
-  sockfd = socket(AF_INET, SOCK_STREAM, 0);
-  connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr));
-  strcpy(send_buffer, "4_This is the message we're saving\\");
-  write(sockfd, send_buffer, strlen(send_buffer));
-  memset(receive_buffer, '\0' ,sizeof(receive_buffer));
-  memset(send_buffer, '\0' ,sizeof(send_buffer));
-  if(recv(sockfd, receive_buffer, recv_buffer_size, 0) < 0) {
-    puts("Receive failed\n");
-    return 1;
-  }
-  puts("Server Message: ");
-  print_message(receive_buffer);
-  int file_id = atoi(receive_buffer);
-  close(sockfd);
-  //Request Message
-  sockfd = socket(AF_INET, SOCK_STREAM, 0);
-  connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr));
-  strcpy(send_buffer, "5_");
-  receive_buffer[3] = '\0';
-  receive_buffer[4] = '\\';
-  strcpy(send_buffer + 2, receive_buffer);
-  print_message(send_buffer);
-  write(sockfd, send_buffer, 3 + strlen(receive_buffer));
-  memset(receive_buffer, '\0' ,sizeof(receive_buffer));
-  if(recv(sockfd, receive_buffer, recv_buffer_size, 0) < 0) {
-    puts("Receive failed\n");
-    return 1;
-  }
-  puts("Server Message: ");
-  print_message(receive_buffer);
-  close(sockfd);
-
-
-  free(send_buffer);
+  become_requestor(serv_addr);
+  strcpy(my_message, "What the fuck did you just fucking say about me, you little bitch? I'll have you know I graduated top of my class in the Navy Seals, and I've been involved in numerous secret raids on Al-Quaeda, and I have over 300 confirmed kills. I am trained in gorilla warfare and I'm the top sniper in the entire US armed forces. You are nothing to me but just another target. I will wipe you the fuck out with precision the likes of which has never been seen before on this Earth, mark my fucking words. You think you can get away with saying that shit to me over the Internet? Think again, fucker. As we speak I am contacting my secret network of spies across the USA and your IP is being traced right now so you better prepare for the storm, maggot. The storm that wipes out the pathetic little thing you call your life. You're fucking dead, kid. I can be anywhere, anytime, and I can kill you in over seven hundred ways, and that's just with my bare hands. Not only am I extensively trained in unarmed combat, but I have access to the emakntire arsenal of the United States Marine Corps and I will use it to its full extent to wipe your miserable ass off the face of the continent, you little shit. If only you could have known what unholy retribution your little 'clever' comment was about to bring down upon you, maybe you would have held your fucking tongue. But you couldn't, you didn't, and now you're paying the price, you goddamn idiot. I will shit fury all over you and you will drown in it. You're fucking dead, kiddo.");
+  unsigned int ID = store(serv_addr, my_message);
+  free(my_message);
+  //We can now do stuff with all our extra memory
+  char* new_message = retrieve(serv_addr, ID);
 
   return 0;
 }
