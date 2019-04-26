@@ -65,10 +65,6 @@ void insert(hashmap* hm,unsigned int    key,void* data) {
    DataItem *item = (DataItem*) malloc(sizeof(DataItem));
    item->data = data;
    item->key = key;
-   printf("Shallow into insert\n");
-   fflush(stdout);
-
-
    //get the hash
    int hashIndex = (hm->hashcode)((hm->arr_size), key);
    //move in array until an empty or deleted cell
@@ -79,15 +75,11 @@ void insert(hashmap* hm,unsigned int    key,void* data) {
       //wrap around the table
       hashIndex %= hm->arr_size;
    }
-   printf("Deep into insert\n");
-   fflush(stdout);
    ((hm->hash_array)[hashIndex]) = item;
    (hm->num_elem)+= 1;
    if(hm->num_elem*2.0 > hm->arr_size){
      rehash(hm, 1);
    }
-   printf("End of insert\n");
-   fflush(stdout);
 }
 
 DataItem* delete(hashmap* hm,  unsigned int    key) {

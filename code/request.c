@@ -19,10 +19,12 @@ void become_requestor(struct sockaddr_in serv_addr){
   char send_buffer[send_buffer_size];
   char receive_buffer[recv_buffer_size];
   int sockfd = socket(AF_INET, SOCK_STREAM, 0);
+  //Connect
   connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr));
+  //Sending 0 adds IP as requester
   strcpy(send_buffer, "0\0");
   write(sockfd, send_buffer, strlen(send_buffer));
-
+  //Wait for confirmation(optional)
   if(recv(sockfd, receive_buffer, recv_buffer_size, 0) < 0) {
     puts("Receive failed\n");
     return;
@@ -37,17 +39,23 @@ unsigned int store(struct sockaddr_in serv_addr,char* stored_string){
   char send_buffer[send_buffer_size];
   char receive_buffer[recv_buffer_size];
   int sockfd = socket(AF_INET, SOCK_STREAM, 0);
+  //connect
   connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr));
+  //Mode 4 means store request
   strcpy(send_buffer, "4_");
+  //Copy the string to store into the buffer
   strcpy(send_buffer+2, stored_string);
+  // End with \\ to represent end of buffer
   send_buffer[2+strlen(stored_string)] = '\\';
   write(sockfd, send_buffer, strlen(send_buffer));
+  //Wait to get the ID number
   if(recv(sockfd, receive_buffer, recv_buffer_size, 0) < 0) {
     puts("Receive failed\n");
     return 0;
   }
   puts("Server Message: ");
   print_message(receive_buffer);
+  //Parse and return ID number
   unsigned int file_id = atoi(receive_buffer);
   close(sockfd);
   return file_id;
@@ -58,15 +66,20 @@ char* retrieve(struct sockaddr_in serv_addr, unsigned int ID){
   char send_buffer[send_buffer_size];
   char* receive_buffer = malloc(recv_buffer_size);
   char id_str[5];
+  //Connect to socket
   int sockfd = socket(AF_INET, SOCK_STREAM, 0);
   connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr));
+  //5 means we are requesting data
   strcpy(send_buffer, "5_");
+  //turn the ID into a string of size 3
   my_itoa(ID, id_str);
+  //Cut off at 3 and add end of buffer
   id_str[3] = '\0';
   id_str[4] = '\\';
   strcpy(send_buffer + 2, id_str);
   print_message(send_buffer);
   write(sockfd, send_buffer, 7);
+  //Wait for the data back
   if(recv(sockfd, receive_buffer, recv_buffer_size, 0) < 0) {
     puts("Receive failed\n");
     return NULL;
@@ -81,11 +94,10 @@ int main(void) {
   int sockfd=0, p=0, n=0, i, PORT;
   struct sockaddr_in serv_addr;
   char * my_message = malloc(send_buffer_size );
-  // [send_buffer_size] = "2: Hi!\0";
   char IP_ADDR[22];
   char str_port[6];
   char c;
-
+  //Parse the IP
   puts("Please Enter IP Address of Server:");
   fgets(IP_ADDR, 21, stdin);
 
@@ -115,7 +127,7 @@ int main(void) {
   unsigned int ID = store(serv_addr, my_message);
   free(my_message);
   //We can now do stuff with all our extra memory
+  //We then load it back
   char* new_message = retrieve(serv_addr, ID);
-
   return 0;
 }

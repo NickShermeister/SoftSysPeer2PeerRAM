@@ -108,8 +108,6 @@ void store(unsigned int r_IP, unsigned int r_port_number, char* recv_buffer){
   insert(running_server->locations, id, p);
   strcpy(send_buffer, "1\0");//Mode 1 for donors says we're sending data
   //send id back to whoever
-
-
   my_itoa(id, id_str);
   id_str[3] = '\0';
   write(r_port_number,id_str,strlen(id_str));
@@ -129,12 +127,9 @@ void retrieve(unsigned int r_IP, unsigned int r_port_number, char* message){
   char send_buffer[send_buffer_size];
   char id_str[10];
   unsigned int id = atoi(message + 2);
-
-
   // Validate requestor
   if (search(running_server->requestors, r_IP) == NULL) {
     printf("Requestor not recognized: %i\n", r_IP);
-
     return;
   }
   //Retrieve donor
@@ -146,18 +141,15 @@ void retrieve(unsigned int r_IP, unsigned int r_port_number, char* message){
   }
   //Make a request to the right IP address.
   unsigned int d_port = *(unsigned int *)(donor_info->data);
-  strcpy(send_buffer, "2\0");//Mode 1 for donors says we're sending data
-  //send id back to whoever
-
+  strcpy(send_buffer, "2\0");//Mode 2 for donors says we're retrieving data
   strcpy(send_buffer + (sizeof(char)*2) , message+2);
   send_buffer[5] = '\0';
   send_buffer[6] = '\\';
   write(d_port,send_buffer,7);
+  //Wait on the data from the donor
   recv(d_port , send_buffer , send_buffer_size , 0);
   //Return the data
   write(r_port_number, send_buffer,strlen(send_buffer));
-
-  //TODO
 }
 
 /*
@@ -189,15 +181,10 @@ void * socketThread(void *arg)
     case 2:
       //this means we only have to interpret one Message
       //maybe we want to send a confirmation
-      // printf("Mode: %d\n",mode);
-      // printf("Message: %s\n", recv_buffer);
       f_array[mode](ipAddr.s_addr);
-      printf("After function call \n");
-      fflush(stdout);
       strcpy(send_buffer, "Did the thing\\");
       write(newSocket,send_buffer,strlen(send_buffer));
       close(newSocket);
-
       break;
     case 3:
       s_add_donor(ipAddr.s_addr, (unsigned int)newSocket);
@@ -205,11 +192,8 @@ void * socketThread(void *arg)
     case 4:
       //Store
       //Since we are storing we may have to accept an arbitrary amount of messages
-
       store(ipAddr.s_addr, (unsigned int)newSocket, recv_buffer);
       close(newSocket);
-
-      //TODO
       break;
     case 5:
       //Retrieve
@@ -221,62 +205,44 @@ void * socketThread(void *arg)
     default:
       printf("Uh oh. Couldnt find method");
       close(newSocket);
-
   }
-  //
   display(running_server->requestors);
   display(running_server->donors);
   display(running_server->locations);
   // Send message to the client socket
   //Exit
-
   pthread_exit(NULL);
 }
 
 int setup(){
   listenfd = socket(AF_INET, SOCK_STREAM, 0);
   setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &OPTION, sizeof(OPTION));
-
   memset(&serv_addr, '0', sizeof(serv_addr));
-  // memset(send_buffer, '0', sizeof(send_buffer));
-
   serv_addr.sin_family = AF_INET;
   serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
   serv_addr.sin_port = htons(5000);
-
   bind(listenfd, (struct sockaddr*)&serv_addr, sizeof(serv_addr));
-
   if(listen(listenfd, MAX_CONN_REQEUSTS) == -1){
     puts("Failed to listen\n");
     return -1;
   }
-
   puts("Server IP:");
   print_ip(5000);
   puts("\n");
-
   return 0;
-
 }
 
 int server_main(){
   int success;
-
   char str[INET_ADDRSTRLEN];
   struct sockaddr_storage serverStorage;
   int serverSocket, newSocket;
   pthread_t tid[MAX_CONN_REQEUSTS];
   pthread_t donors[MAX_DONORS];
-
   int i = 0;
-
   while(1){
-    // connfd = accept(listenfd, (struct sockaddr *) &client_address, &size);
-    printf("Waiting\n");
-
     pthread_mutex_lock(&socket_mutex);
     printf("Waiting for acceptance\n");
-
     connfd = accept(listenfd, (struct sockaddr *) &client_address, &size);
     printf("connfd: %d\n", connfd);
     if( pthread_create(&tid[i], NULL, socketThread, &connfd) != 0 ){
@@ -287,7 +253,6 @@ int server_main(){
     client_count++;
     puts("New Client Connection\n");
     printf("Total Connections:%d\n\n", client_count);
-
   }
   return 0;
 }
@@ -297,14 +262,11 @@ int main(){
 
   // Adjust stack size
   running_server = s_start();
-
   int valid_setup = setup();
   if(valid_setup != 0){
     printf("Something went wrong with the server setup. Shutting down now.");
     return -1;
   }
-
   server_main();
-
   return 0;
 }
