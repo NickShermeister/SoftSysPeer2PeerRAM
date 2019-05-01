@@ -152,6 +152,22 @@ void retrieve(unsigned int r_IP, unsigned int r_port_number, char* message){
   write(r_port_number, send_buffer,strlen(send_buffer));
 }
 
+void delete_all_data(){
+  hashmap* hm = running_server->donors;
+  char send_buffer[send_buffer_size];
+  strcpy(send_buffer, "3\\");
+  DataItem* item;
+  for(int i =0; i< hm->arr_size; i++){
+    item = hm->hash_array[i];
+    if(item != NULL && item->key != 0){
+      write(*(unsigned int *)(item->data),send_buffer,3);
+    }
+  }
+
+  free_map(running_server->locations);
+  running_server->locations = declare_map(hashCode);
+}
+
 /*
   Thread entry that handles what happens when we get a new connection. Currently
 */
@@ -202,6 +218,11 @@ void * socketThread(void *arg)
       //Since we are retrieving we may have to send an arbitrary amount of packets
       //TODO
       break;
+    case 6:
+      //for testing purposes
+      //delete all locations
+      delete_all_data();
+
     default:
       printf("Uh oh. Couldnt find method");
       close(newSocket);

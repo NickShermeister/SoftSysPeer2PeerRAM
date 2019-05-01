@@ -116,6 +116,10 @@ int main(void) {
           char* stored_data = (char*)d->data;
           write(sockfd, stored_data, strlen(stored_data));
           break;
+        case 3:
+          //for testing purposes. Forget what we know
+          free_map(hm);
+          hm = declare_map(hashCode);
         default:
           printf("Couldnt parse data");
       }
