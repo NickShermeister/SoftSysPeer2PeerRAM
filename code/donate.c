@@ -105,7 +105,7 @@ int main(void) {
           //Sending data back
           //Again parse ID
           ID = atoi(receive_buffer+2*(sizeof(char)));
-          printf("Load:\nID: %u", ID);
+          // printf("Load:\nID: %u", ID);
           DataItem* d = search(hm, ID);
           if(d==NULL){
             printf("Yikes");

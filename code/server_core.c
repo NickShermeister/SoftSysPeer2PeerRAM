@@ -172,7 +172,7 @@ void * socketThread(void *arg)
   //Do the actual work
   printf("newSocket: %d\n", newSocket);
   recv(newSocket , recv_buffer , recv_buffer_size , 0);
-  printf("Received: %s\n", recv_buffer);
+  // printf("Received: %s\n", recv_buffer);
   //Do different work depending on message recieved
   int mode = ((int)recv_buffer[0]) - 48;
   switch(mode){
@@ -206,9 +206,9 @@ void * socketThread(void *arg)
       printf("Uh oh. Couldnt find method");
       close(newSocket);
   }
-  display(running_server->requestors);
-  display(running_server->donors);
-  display(running_server->locations);
+  // display(running_server->requestors);
+  // display(running_server->donors);
+  // display(running_server->locations);
   // Send message to the client socket
   //Exit
   pthread_exit(NULL);

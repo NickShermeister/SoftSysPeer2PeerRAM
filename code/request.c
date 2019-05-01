@@ -77,15 +77,15 @@ char* retrieve(struct sockaddr_in serv_addr, unsigned int ID){
   id_str[3] = '\0';
   id_str[4] = '\\';
   strcpy(send_buffer + 2, id_str);
-  print_message(send_buffer);
+  // print_message(send_buffer);
   write(sockfd, send_buffer, 7);
   //Wait for the data back
   if(recv(sockfd, receive_buffer, recv_buffer_size, 0) < 0) {
     puts("Receive failed\n");
     return NULL;
   }
-  puts("Server Message: ");
-  print_message(receive_buffer);
+  // puts("Server Message: ");
+  // print_message(receive_buffer);
   close(sockfd);
   return receive_buffer;
 }
@@ -97,6 +97,8 @@ int main(void) {
   char IP_ADDR[22];
   char str_port[6];
   char c;
+  clock_t t;
+
   //Parse the IP
   puts("Please Enter IP Address of Server:");
   fgets(IP_ADDR, 21, stdin);
@@ -123,11 +125,19 @@ int main(void) {
   serv_addr.sin_addr.s_addr = inet_addr(IP_ADDR);
 
   become_requestor(serv_addr);
-  strcpy(my_message, "What the fuck did you just fucking say about me, you little bitch? I'll have you know I graduated top of my class in the Navy Seals, and I've been involved in numerous secret raids on Al-Quaeda, and I have over 300 confirmed kills. I am trained in gorilla warfare and I'm the top sniper in the entire US armed forces. You are nothing to me but just another target. I will wipe you the fuck out with precision the likes of which has never been seen before on this Earth, mark my fucking words. You think you can get away with saying that shit to me over the Internet? Think again, fucker. As we speak I am contacting my secret network of spies across the USA and your IP is being traced right now so you better prepare for the storm, maggot. The storm that wipes out the pathetic little thing you call your life. You're fucking dead, kid. I can be anywhere, anytime, and I can kill you in over seven hundred ways, and that's just with my bare hands. Not only am I extensively trained in unarmed combat, but I have access to the emakntire arsenal of the United States Marine Corps and I will use it to its full extent to wipe your miserable ass off the face of the continent, you little shit. If only you could have known what unholy retribution your little 'clever' comment was about to bring down upon you, maybe you would have held your fucking tongue. But you couldn't, you didn't, and now you're paying the price, you goddamn idiot. I will shit fury all over you and you will drown in it. You're fucking dead, kiddo.");
+  strcpy(my_message, "What the fuck did you just fucking say about me, you little bitch? I'll have you know I graduated top of my class in the Navy Seals, and I've been involved in numerous secret raids on Al-Quaeda, and I have over 300 confirmed kills. I am trained in gorilla warfare and I'm the top sniper in the entire US armed forces. You are nothing to me but just another target. I will wipe you the fuck out with precision the likes of which has never been seen before on this Earth, mark my fucking words. You think you can get away with saying that shit to me over the Internet? Think again, fucker. As we speak I am contacting my secret network of spies across the USA and your IP is being traced right now so you better prepare for the storm, maggot. The storm that wipes out the pathetic little thing you call your life. You're fucking dead, kid. I can be anywhere, anytime, and I can kill you in over seven hundred ways, and that's just with my bare hands. Not only am I extensively trained in unarmed combat, but I have access to the entire arsenal of the United States Marine Corps and I will use it to its full extent to wipe your miserable ass off the face of the continent, you little shit. If only you could have known what unholy retribution your little 'clever' comment was about to bring down upon you, maybe you would have held your fucking tongue. But you couldn't, you didn't, and now you're paying the price, you goddamn idiot. I will shit fury all over you and you will drown in it. You're fucking dead, kiddo.");
   unsigned int ID = store(serv_addr, my_message);
   free(my_message);
   //We can now do stuff with all our extra memory
   //We then load it back
+  t = clock();
   char* new_message = retrieve(serv_addr, ID);
+  t = clock() - t;
+  double time_taken = 1000.0 * ((double)t)/CLOCKS_PER_SEC;
+  printf("Time to get from network(ms): %f\n", time_taken);
+  printf("(Est. Avg)Time from disk(ms): 5\n");
+  puts("Server Message: ");
+  print_message(new_message);
+
   return 0;
 }
