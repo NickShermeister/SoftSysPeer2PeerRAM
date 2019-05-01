@@ -81,10 +81,12 @@ int main(void) {
       printf("Receive failed: port %d\n", sockfd);
     }else{
       //We successfully filled the buffer
-      printf("Server port: %d\n", sockfd);
+      // printf("Server port: %d\n", sockfd);
       unsigned int ID;
+      char* stored_data;
       //Parse the mode
       int mode = ((int)receive_buffer[0]) - 48;
+      // printf("Mode: %d\n",mode);
       switch(mode){
         case 1:
           //Accepting data
@@ -98,8 +100,10 @@ int main(void) {
           strcpy(data_copy, data_start);
           //Put copy in hashmap under the key ID
           insert(hm, ID, (void*) data_copy);
-          printf("Save:\nID:%u\n", ID);
-          printf("%s\n", data_copy);
+          // printf("Save:\nID:%u\n", ID);
+          write(sockfd, "Did the thing", 14);
+
+          // printf("%s\n", data_copy);
           break;
         case 2:
           //Sending data back
@@ -109,17 +113,21 @@ int main(void) {
           DataItem* d = search(hm, ID);
           if(d==NULL){
             printf("Yikes");
-            close(sockfd);
-            return 1;
+            send_buffer[0] = '\0';
+            write(sockfd, send_buffer, 1);
+            continue;
           }
           //Get the pointer
-          char* stored_data = (char*)d->data;
+          stored_data = (char*)d->data;
           write(sockfd, stored_data, strlen(stored_data));
           break;
         case 3:
           //for testing purposes. Forget what we know
+          printf("Case 3");
           free_map(hm);
           hm = declare_map(hashCode);
+          printf("Reset----------");
+          break;
         default:
           printf("Couldnt parse data");
       }

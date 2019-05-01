@@ -53,8 +53,8 @@ unsigned int store(struct sockaddr_in serv_addr,char* stored_string){
     puts("Receive failed\n");
     return 0;
   }
-  puts("Server Message: ");
-  print_message(receive_buffer);
+  // puts("Server Message: ");
+  // print_message(receive_buffer);
   //Parse and return ID number
   unsigned int file_id = atoi(receive_buffer);
   close(sockfd);
@@ -122,9 +122,57 @@ void get_IP(struct sockaddr_in* serv_addr){
   serv_addr->sin_addr.s_addr = inet_addr(IP_ADDR);
 }
 
-// double test_speed(int str_length){
-//
-// }
+double test_speed(struct sockaddr_in serv_addr, int str_length, int number_values){
+  double results[number_values];
+  unsigned int ids[number_values];
+  char send_buffer[send_buffer_size];
+  char receive_buffer[recv_buffer_size];
+
+  if(number_values >= 900){
+    printf("sorry number capped right now");
+    return 0;
+  }else if(str_length>=recv_buffer_size-3){
+    printf("sorry str len capped right now");
+    return 0;
+  }
+
+  int ID = 100;
+  for(int i = 0; i<number_values;i++){
+    my_itoa(ID, send_buffer);
+    for(int j = 3; j<str_length; j++){
+      send_buffer[j] = 'a';
+    }
+    send_buffer[str_length] = '\0';
+    send_buffer[str_length+1] = '\\';
+    ids[i] = store(serv_addr, send_buffer);
+    ID++;
+  }
+  // printf("Data Stored\n");
+  clock_t t;
+
+  for(int i = 0; i<number_values;i++){
+    t = clock();
+    char* new_message = retrieve(serv_addr, ids[i]);
+    t = clock() - t;
+    results[i] = 1000.0 * ((double)t)/CLOCKS_PER_SEC;
+    // print_message(new_message);
+  }
+
+  double total = 0;
+  for(int i = 0; i<number_values;i++){
+    // printf("%f\n",results[i]);
+    total += results[i];
+  }
+  printf("Len %d: %f\n", str_length, total/(double)number_values);
+
+  int sockfd = socket(AF_INET, SOCK_STREAM, 0);
+  connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr));
+  strcpy(send_buffer,"6\\");
+  write(sockfd, send_buffer, 3);
+  recv(sockfd , send_buffer , 1 , 0);
+  close(sockfd);
+  return total/(double)number_values;
+}
 
 int main(void) {
   char * my_message = malloc(send_buffer_size );
@@ -133,19 +181,22 @@ int main(void) {
   get_IP(serv_addr);
 
   become_requestor(*serv_addr);
-  strcpy(my_message, "What the fuck did you just fucking say about me, you little bitch? I'll have you know I graduated top of my class in the Navy Seals, and I've been involved in numerous secret raids on Al-Quaeda, and I have over 300 confirmed kills. I am trained in gorilla warfare and I'm the top sniper in the entire US armed forces. You are nothing to me but just another target. I will wipe you the fuck out with precision the likes of which has never been seen before on this Earth, mark my fucking words. You think you can get away with saying that shit to me over the Internet? Think again, fucker. As we speak I am contacting my secret network of spies across the USA and your IP is being traced right now so you better prepare for the storm, maggot. The storm that wipes out the pathetic little thing you call your life. You're fucking dead, kid. I can be anywhere, anytime, and I can kill you in over seven hundred ways, and that's just with my bare hands. Not only am I extensively trained in unarmed combat, but I have access to the entire arsenal of the United States Marine Corps and I will use it to its full extent to wipe your miserable ass off the face of the continent, you little shit. If only you could have known what unholy retribution your little 'clever' comment was about to bring down upon you, maybe you would have held your fucking tongue. But you couldn't, you didn't, and now you're paying the price, you goddamn idiot. I will shit fury all over you and you will drown in it. You're fucking dead, kiddo.");
-  unsigned int ID = store(*serv_addr, my_message);
-  free(my_message);
-  //We can now do stuff with all our extra memory
-  //We then load it back
-  t = clock();
-  char* new_message = retrieve(*serv_addr, ID);
-  t = clock() - t;
-  double time_taken = 1000.0 * ((double)t)/CLOCKS_PER_SEC;
-  printf("Time to get from network(ms): %f\n", time_taken);
-  printf("(Est. Avg)Time from disk(ms): 5\n");
-  puts("Server Message: ");
-  print_message(new_message);
+  // strcpy(my_message, "What the fuck did you just fucking say about me, you little bitch? I'll have you know I graduated top of my class in the Navy Seals, and I've been involved in numerous secret raids on Al-Quaeda, and I have over 300 confirmed kills. I am trained in gorilla warfare and I'm the top sniper in the entire US armed forces. You are nothing to me but just another target. I will wipe you the fuck out with precision the likes of which has never been seen before on this Earth, mark my fucking words. You think you can get away with saying that shit to me over the Internet? Think again, fucker. As we speak I am contacting my secret network of spies across the USA and your IP is being traced right now so you better prepare for the storm, maggot. The storm that wipes out the pathetic little thing you call your life. You're fucking dead, kid. I can be anywhere, anytime, and I can kill you in over seven hundred ways, and that's just with my bare hands. Not only am I extensively trained in unarmed combat, but I have access to the entire arsenal of the United States Marine Corps and I will use it to its full extent to wipe your miserable ass off the face of the continent, you little shit. If only you could have known what unholy retribution your little 'clever' comment was about to bring down upon you, maybe you would have held your fucking tongue. But you couldn't, you didn't, and now you're paying the price, you goddamn idiot. I will shit fury all over you and you will drown in it. You're fucking dead, kiddo.");
+  // unsigned int ID = store(*serv_addr, my_message);
+  // free(my_message);
+  // //We can now do stuff with all our extra memory
+  // //We then load it back
+  // t = clock();
+  // char* new_message = retrieve(*serv_addr, ID);
+  // t = clock() - t;
+  // double time_taken = 1000.0 * ((double)t)/CLOCKS_PER_SEC;
+  // printf("Time to get from network(ms): %f\n", time_taken);
+  // printf("(Est. Avg)Time from disk(ms): 5\n");
+  // puts("Server Message: ");
+  // print_message(new_message);
+  for(int i = 10; i < 1000; i+=10){
+    test_speed(*serv_addr, i, 400);
+  }
 
   return 0;
 }

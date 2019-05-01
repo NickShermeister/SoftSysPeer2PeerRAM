@@ -68,12 +68,17 @@ void insert(hashmap* hm,unsigned int    key,void* data) {
    //get the hash
    int hashIndex = (hm->hashcode)((hm->arr_size), key);
    //move in array until an empty or deleted cell
+   int num_loops = 0;
    while(((hm->hash_array)[hashIndex]) != NULL && ((hm->hash_array)[hashIndex])->key != 0) {
       //go to next cell
       ++hashIndex;
 
       //wrap around the table
       hashIndex %= hm->arr_size;
+      num_loops++;
+      if(num_loops>hm->arr_size){
+        return;
+      }
    }
    ((hm->hash_array)[hashIndex]) = item;
    (hm->num_elem)+= 1;

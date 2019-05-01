@@ -110,17 +110,19 @@ void store(unsigned int r_IP, unsigned int r_port_number, char* recv_buffer){
   //send id back to whoever
   my_itoa(id, id_str);
   id_str[3] = '\0';
-  write(r_port_number,id_str,strlen(id_str));
   strcpy(send_buffer + (c_size*2) , id_str);
   strcpy(send_buffer+6*c_size, recv_buffer + 2* c_size);
 
   //Send request to donor
-  printf("Our message: %s \n",recv_buffer);
-  printf("Our buffer: %s \n",send_buffer);
-  printf("Our port: %u \n",d_port);
+  // printf("Our message: %s \n",recv_buffer);
+  // printf("Our buffer: %s \n",send_buffer);
+  // printf("Our port: %u \n",d_port);
   if(write(d_port,send_buffer,6 + strlen(send_buffer+6*c_size))<0){
     printf("Write failed------------------\n\n");
   }
+  recv(d_port , send_buffer , 14 , 0);
+  write(r_port_number,id_str,strlen(id_str));
+
 }
 
 void retrieve(unsigned int r_IP, unsigned int r_port_number, char* message){
@@ -153,6 +155,8 @@ void retrieve(unsigned int r_IP, unsigned int r_port_number, char* message){
 }
 
 void delete_all_data(){
+  // printf("In delete data\n\n\n\n\n");
+
   hashmap* hm = running_server->donors;
   char send_buffer[send_buffer_size];
   strcpy(send_buffer, "3\\");
@@ -166,6 +170,8 @@ void delete_all_data(){
 
   free_map(running_server->locations);
   running_server->locations = declare_map(hashCode);
+  IDNO = 100;
+  printf("Reset-----------------------------------------\n");
 }
 
 /*
@@ -186,7 +192,7 @@ void * socketThread(void *arg)
   //Okay now we can modify arg and client_address
   pthread_mutex_unlock(&socket_mutex);
   //Do the actual work
-  printf("newSocket: %d\n", newSocket);
+  // printf("newSocket: %d\n", newSocket);
   recv(newSocket , recv_buffer , recv_buffer_size , 0);
   // printf("Received: %s\n", recv_buffer);
   //Do different work depending on message recieved
@@ -222,10 +228,13 @@ void * socketThread(void *arg)
       //for testing purposes
       //delete all locations
       delete_all_data();
-
+      write(newSocket, send_buffer,1);
+      close(newSocket);
+      break;
     default:
       printf("Uh oh. Couldnt find method");
-      close(newSocket);
+      printf("Received: %s\n", recv_buffer);
+      // close(newSocket);
   }
   // display(running_server->requestors);
   // display(running_server->donors);
