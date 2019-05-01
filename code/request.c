@@ -90,14 +90,11 @@ char* retrieve(struct sockaddr_in serv_addr, unsigned int ID){
   return receive_buffer;
 }
 
-int main(void) {
+void get_IP(struct sockaddr_in* serv_addr){
   int sockfd=0, p=0, n=0, i, PORT;
-  struct sockaddr_in serv_addr;
-  char * my_message = malloc(send_buffer_size );
   char IP_ADDR[22];
   char str_port[6];
   char c;
-  clock_t t;
 
   //Parse the IP
   puts("Please Enter IP Address of Server:");
@@ -120,18 +117,29 @@ int main(void) {
   str_port[p-1] = '\0';
   PORT = strtol(str_port, '\0', 10);
 
-  serv_addr.sin_family = AF_INET;
-  serv_addr.sin_port = htons(PORT);
-  serv_addr.sin_addr.s_addr = inet_addr(IP_ADDR);
+  serv_addr->sin_family = AF_INET;
+  serv_addr->sin_port = htons(PORT);
+  serv_addr->sin_addr.s_addr = inet_addr(IP_ADDR);
+}
 
-  become_requestor(serv_addr);
+// double test_speed(int str_length){
+//
+// }
+
+int main(void) {
+  char * my_message = malloc(send_buffer_size );
+  clock_t t;
+  struct sockaddr_in* serv_addr = malloc(sizeof(struct sockaddr_in));
+  get_IP(serv_addr);
+
+  become_requestor(*serv_addr);
   strcpy(my_message, "What the fuck did you just fucking say about me, you little bitch? I'll have you know I graduated top of my class in the Navy Seals, and I've been involved in numerous secret raids on Al-Quaeda, and I have over 300 confirmed kills. I am trained in gorilla warfare and I'm the top sniper in the entire US armed forces. You are nothing to me but just another target. I will wipe you the fuck out with precision the likes of which has never been seen before on this Earth, mark my fucking words. You think you can get away with saying that shit to me over the Internet? Think again, fucker. As we speak I am contacting my secret network of spies across the USA and your IP is being traced right now so you better prepare for the storm, maggot. The storm that wipes out the pathetic little thing you call your life. You're fucking dead, kid. I can be anywhere, anytime, and I can kill you in over seven hundred ways, and that's just with my bare hands. Not only am I extensively trained in unarmed combat, but I have access to the entire arsenal of the United States Marine Corps and I will use it to its full extent to wipe your miserable ass off the face of the continent, you little shit. If only you could have known what unholy retribution your little 'clever' comment was about to bring down upon you, maybe you would have held your fucking tongue. But you couldn't, you didn't, and now you're paying the price, you goddamn idiot. I will shit fury all over you and you will drown in it. You're fucking dead, kiddo.");
-  unsigned int ID = store(serv_addr, my_message);
+  unsigned int ID = store(*serv_addr, my_message);
   free(my_message);
   //We can now do stuff with all our extra memory
   //We then load it back
   t = clock();
-  char* new_message = retrieve(serv_addr, ID);
+  char* new_message = retrieve(*serv_addr, ID);
   t = clock() - t;
   double time_taken = 1000.0 * ((double)t)/CLOCKS_PER_SEC;
   printf("Time to get from network(ms): %f\n", time_taken);
