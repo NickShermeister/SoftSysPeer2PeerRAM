@@ -125,11 +125,12 @@ void get_IP(struct sockaddr_in* serv_addr){
 double test_speed_local(int str_length, int number_values){
   char* p[number_values];
   double results[number_values];
-
+  printf("In local\n");
   for(int i = 0; i<number_values;i++){
     p[i] = malloc(sizeof(char) * str_length);
   }
   clock_t t;
+  printf("Mallocs\n");
 
   for(int i = 0; i<number_values;i++){
     t = clock();
@@ -137,15 +138,16 @@ double test_speed_local(int str_length, int number_values){
     t = clock() - t;
     results[i] = 1000.0 * ((double)t)/CLOCKS_PER_SEC;
   }
-
+  printf("accessed\n");
   for(int i = 0; i<number_values;i++){
     free(p[i]);
   }
-
+  printf("freed\n");
   double total = 0;
   for(int i = 0; i<number_values;i++){
     total += results[i];
   }
+  printf("before return\n");
   return total/(double)number_values;
 }
 
@@ -212,14 +214,14 @@ int main(void) {
 
   int max_ = 1500;
   int min_ = 10;
-  int inc = 10;
+  int inc = 50;
   int size =1 + (max_ - min_)/inc;
   double results[size + 10];
   double results_local[size + 10];
   int index = 0;//I dont want to do the math
   for(int i = min_; i < max_; i+=inc){
-    results[index] = test_speed(*serv_addr, i, 500);
-    results_local[index] = test_speed_local(i, 500);
+    results[index] = test_speed(*serv_addr, i, 400);
+    results_local[index] = test_speed_local(i, 400);
     index++;
   }
   printf("Final index: %d",index);
