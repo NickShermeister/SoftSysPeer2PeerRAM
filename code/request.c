@@ -122,6 +122,33 @@ void get_IP(struct sockaddr_in* serv_addr){
   serv_addr->sin_addr.s_addr = inet_addr(IP_ADDR);
 }
 
+double test_speed_local(int str_length, int number_values){
+  char* p[number_values];
+  double results[number_values];
+
+  for(int i = 0; i<number_values;i++){
+    p[i] = malloc(sizeof(char) * str_length);
+  }
+  clock_t t;
+
+  for(int i = 0; i<number_values;i++){
+    t = clock();
+    (p[i])[str_length-1] = 'a';
+    t = clock() - t;
+    results[i] = 1000.0 * ((double)t)/CLOCKS_PER_SEC;
+  }
+
+  for(int i = 0; i<number_values;i++){
+    free(p[i]);
+  }
+
+  double total = 0;
+  for(int i = 0; i<number_values;i++){
+    total += results[i];
+  }
+  return total/(double)number_values;
+}
+
 double test_speed(struct sockaddr_in serv_addr, int str_length, int number_values){
   double results[number_values];
   unsigned int ids[number_values];
@@ -174,6 +201,7 @@ double test_speed(struct sockaddr_in serv_addr, int str_length, int number_value
   return total/(double)number_values;
 }
 
+
 int main(void) {
   char * my_message = malloc(send_buffer_size );
   clock_t t;
@@ -181,43 +209,36 @@ int main(void) {
   get_IP(serv_addr);
 
   become_requestor(*serv_addr);
-  // strcpy(my_message, "What the fuck did you just fucking say about me, you little bitch? I'll have you know I graduated top of my class in the Navy Seals, and I've been involved in numerous secret raids on Al-Quaeda, and I have over 300 confirmed kills. I am trained in gorilla warfare and I'm the top sniper in the entire US armed forces. You are nothing to me but just another target. I will wipe you the fuck out with precision the likes of which has never been seen before on this Earth, mark my fucking words. You think you can get away with saying that shit to me over the Internet? Think again, fucker. As we speak I am contacting my secret network of spies across the USA and your IP is being traced right now so you better prepare for the storm, maggot. The storm that wipes out the pathetic little thing you call your life. You're fucking dead, kid. I can be anywhere, anytime, and I can kill you in over seven hundred ways, and that's just with my bare hands. Not only am I extensively trained in unarmed combat, but I have access to the entire arsenal of the United States Marine Corps and I will use it to its full extent to wipe your miserable ass off the face of the continent, you little shit. If only you could have known what unholy retribution your little 'clever' comment was about to bring down upon you, maybe you would have held your fucking tongue. But you couldn't, you didn't, and now you're paying the price, you goddamn idiot. I will shit fury all over you and you will drown in it. You're fucking dead, kiddo.");
-  // unsigned int ID = store(*serv_addr, my_message);
-  // free(my_message);
-  // //We can now do stuff with all our extra memory
-  // //We then load it back
-  // t = clock();
-  // char* new_message = retrieve(*serv_addr, ID);
-  // t = clock() - t;
-  // double time_taken = 1000.0 * ((double)t)/CLOCKS_PER_SEC;
-  // printf("Time to get from network(ms): %f\n", time_taken);
-  // printf("(Est. Avg)Time from disk(ms): 5\n");
-  // puts("Server Message: ");
-  // print_message(new_message);
+
   int max_ = 1500;
   int min_ = 10;
   int inc = 10;
   int size =1 + (max_ - min_)/inc;
   double results[size + 10];
+  double results_local[size + 10];
   int index = 0;//I dont want to do the math
   for(int i = min_; i < max_; i+=inc){
     results[index] = test_speed(*serv_addr, i, 500);
+    results_local[index] = test_speed_local(i, 500);
     index++;
   }
   printf("Final index: %d",index);
 
-  FILE * fp;
+  FILE * fp, *fp2;
   int i;
   /* open the file for writing*/
   fp = fopen ("./results.txt","w");
+  fp2 = fopen ("./results_local.txt","w");
 
   /* write 10 lines of text into the file stream*/
   for(i = 0; i < index;i++){
-      fprintf (fp, "%f\n", results[i]);
+    fprintf (fp, "%f\n", results[i]);
+    fprintf (fp2, "%f\n", results_local[i]);
   }
 
   /* close the file*/
   fclose (fp);
+  fclose (fp2);
 
   return 0;
 }
