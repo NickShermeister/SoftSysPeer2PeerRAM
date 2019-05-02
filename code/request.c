@@ -194,9 +194,30 @@ int main(void) {
   // printf("(Est. Avg)Time from disk(ms): 5\n");
   // puts("Server Message: ");
   // print_message(new_message);
-  for(int i = 10; i < 1000; i+=10){
-    test_speed(*serv_addr, i, 400);
+  int max_ = 1000;
+  int min_ = 10;
+  int inc = 10;
+  int size =1 + (max_ - min_)/inc;
+  double results[size];
+  int index = 0;//I dont want to do the math
+  for(int i = 10; i < 1500; i+=10){
+    results[index] = test_speed(*serv_addr, i, 500);
+    index++;
   }
+  printf("Final index: %d",index);
+
+  FILE * fp;
+  int i;
+  /* open the file for writing*/
+  fp = fopen ("./results.txt","w");
+
+  /* write 10 lines of text into the file stream*/
+  for(i = 0; i < index;i++){
+      fprintf (fp, "%f\n", results[i]);
+  }
+
+  /* close the file*/
+  fclose (fp);
 
   return 0;
 }
