@@ -263,6 +263,10 @@ int setup(){
 }
 
 int server_main(){
+  // pthread_attr_t  attrs;
+  // pthread_attr_init(&attrs);
+  // pthread_attr_setstacksize(&attrs, 65536);
+
   int success;
   char str[INET_ADDRSTRLEN];
   struct sockaddr_storage serverStorage;
