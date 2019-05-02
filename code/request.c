@@ -194,13 +194,13 @@ int main(void) {
   // printf("(Est. Avg)Time from disk(ms): 5\n");
   // puts("Server Message: ");
   // print_message(new_message);
-  int max_ = 1000;
+  int max_ = 1500;
   int min_ = 10;
   int inc = 10;
   int size =1 + (max_ - min_)/inc;
-  double results[size];
+  double results[size + 10];
   int index = 0;//I dont want to do the math
-  for(int i = 10; i < 1500; i+=10){
+  for(int i = min_; i < max_; i+=inc){
     results[index] = test_speed(*serv_addr, i, 500);
     index++;
   }
