@@ -25,7 +25,9 @@ void free_map(hashmap* hm){
   for(int i =0; i< hm->arr_size; i++){
     item = hm->hash_array[i];
     if(item != NULL && item->key != 0){
+      free(item->data);
       free(item);
+
     }
   }
   free(hm->hash_array);

@@ -123,31 +123,57 @@ void get_IP(struct sockaddr_in* serv_addr){
 }
 
 double test_speed_local(int str_length, int number_values){
-  char* p[number_values];
   double results[number_values];
-  printf("In local\n");
+  hashmap *hm = declare_map(hashCode);
   for(int i = 0; i<number_values;i++){
-    p[i] = malloc(sizeof(char) * str_length);
+    char* a = malloc(sizeof(char) * str_length + 10);
+    a[i% str_length] = 'b';
+    insert(hm, i+1, (void*)a);
   }
   clock_t t;
-  printf("Mallocs\n");
+  // sleep(1);
+  // long int my_long = 3000000000;
+  // long int num_iters = my_long / 4096;
+  // char* big_data[num_iters];
+  // for(int i = 0; i< num_iters; i++){
+  //   big_data[i] = malloc(4096);
+  //   (big_data[i])[4095] = 'f';
+  // }
 
+  // printf("Pre thrash\n");
+  // fflush(stdout);
+  // int** array = malloc(4096);
+  // int i,j;
+  // for (i = 0; i<4096; i++){
+  //   array[i] = malloc(4096 * 4);
+  //   for (j = 0; j<4096; j++)
+  //    array[i][j] = i*j;
+  // }
+  //
+  // printf("Post thrash\n");
+  // fflush(stdout);
   for(int i = 0; i<number_values;i++){
     t = clock();
-    (p[i])[str_length-1] = 'a';
+    DataItem * a= search(hm, i+1);
+    char* a_str = (char*)(a->data);
+    a_str[i% str_length] = 'a';
     t = clock() - t;
     results[i] = 1000.0 * ((double)t)/CLOCKS_PER_SEC;
   }
-  printf("accessed\n");
-  for(int i = 0; i<number_values;i++){
-    free(p[i]);
-  }
-  printf("freed\n");
+  // for(int i = 0; i< num_iters; i++){
+  //   (big_data[i])[4095] = 'g';
+  //   free(big_data[i]);
+  // }
+  // for(int i = 0; i<number_values;i++){
+  //   free(p[i]);
+  // }
+  free_map(hm);
   double total = 0;
   for(int i = 0; i<number_values;i++){
     total += results[i];
   }
-  printf("before return\n");
+  printf("Local Avg: %f \n", total/(double)number_values);
+
   return total/(double)number_values;
 }
 
@@ -212,7 +238,7 @@ int main(void) {
 
   become_requestor(*serv_addr);
 
-  int max_ = 1500;
+  int max_ = 1410;
   int min_ = 10;
   int inc = 50;
   int size =1 + (max_ - min_)/inc;
@@ -220,8 +246,8 @@ int main(void) {
   double results_local[size + 10];
   int index = 0;//I dont want to do the math
   for(int i = min_; i < max_; i+=inc){
-    results[index] = test_speed(*serv_addr, i, 400);
-    results_local[index] = test_speed_local(i, 400);
+    results[index] = test_speed(*serv_addr, i, 500);
+    results_local[index] = test_speed_local(i, 500);
     index++;
   }
   printf("Final index: %d",index);
