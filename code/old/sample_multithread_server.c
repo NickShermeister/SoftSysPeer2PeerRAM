@@ -6,7 +6,7 @@
 #include <arpa/inet.h>
 #include <fcntl.h> // for open
 #include <unistd.h> // for close
-#include<pthread.h>
+#include <pthread.h>
 char client_message[2000];
 char buffer[1024];
 pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
