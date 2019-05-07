@@ -95,7 +95,6 @@ void store(unsigned int r_IP, unsigned int r_port_number, char* recv_buffer){
   IDNO++;//not thread safe but it's fine probably
   //Choose Donor from the list
 
-  //TODO do this better
   DataItem* donor = first(running_server->donors);
   if(donor == NULL){
     //no donors :()
@@ -155,8 +154,6 @@ void retrieve(unsigned int r_IP, unsigned int r_port_number, char* message){
 }
 
 void delete_all_data(){
-  // printf("In delete data\n\n\n\n\n");
-
   hashmap* hm = running_server->donors;
   char send_buffer[send_buffer_size];
   strcpy(send_buffer, "3\\");
