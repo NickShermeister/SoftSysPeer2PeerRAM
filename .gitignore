@@ -1,2 +1,5 @@
 ./code/main
 *.o
+./code/donate
+./code/request
+./code/server_core

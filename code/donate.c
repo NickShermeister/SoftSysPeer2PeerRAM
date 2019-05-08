@@ -1,9 +1,7 @@
 #include "server_core.h"
 
 int sockfd=0, p=0, n=0, i, PORT;
-char receive_buffer[recv_buffer_size];
-  struct sockaddr_in serv_addr;
-char * send_buffer;//malloc(send_buffer_size * (sizeof(char)));
+struct sockaddr_in serv_addr;
 
 int check_message(char *message) {
   int i;
@@ -67,13 +65,10 @@ void become_donor(struct sockaddr_in serv_addr){
   //Add self as donor
   char send_buffer[send_buffer_size];
   // char receive_buffer[recv_buffer_size];
-  puts("Server Message: ");
-  print_message(receive_buffer);
-  close(sockfd);
 
   //Add self as donor
   //Declare socket
-  int sockfd = socket(AF_INET, SOCK_STREAM, 0);
+  sockfd = socket(AF_INET, SOCK_STREAM, 0);
   //Inform server that you exist
   connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr));
   //Inform the server that you are a donor
@@ -81,13 +76,13 @@ void become_donor(struct sockaddr_in serv_addr){
   write(sockfd, send_buffer, strlen(send_buffer));
 }
 
-store(hashmap* hm, char* recv_buffer){
+void store(hashmap* hm, char* recv_buffer){
   int skip_for_data= 6;
   //Accepting data
   //Get the id number first
-  int ID = atoi(receive_buffer+2*(sizeof(char)));
+  int ID = atoi(recv_buffer+2*(sizeof(char)));
   //Get where the actual information starts
-  char* data_start = receive_buffer + skip_for_data * sizeof(char);
+  char* data_start = recv_buffer + skip_for_data * sizeof(char);
   int string_size = strlen(data_start);
   //Save a copy so we can service other requests
   char* data_copy = malloc(sizeof(char) * (string_size+1));
@@ -100,10 +95,12 @@ store(hashmap* hm, char* recv_buffer){
   // printf("%s\n", data_copy);
 }
 
-retrieve(hashmap* hm, char* recv_buffer){
+void retrieve(hashmap* hm, char* recv_buffer){
   //Sending data back
   //Again parse ID
-  int ID = atoi(receive_buffer+2*(sizeof(char)));
+  char send_buffer[send_buffer_size];
+
+  int ID = atoi(recv_buffer+2*(sizeof(char)));
   // printf("Load:\nID: %u", ID);
   DataItem* d = search(hm, ID);
   if(d==NULL){
@@ -121,15 +118,11 @@ int main(void) {
   //We need a hashmap to find stuf given an ID
   hashmap* hm = declare_map(hashCode);
   //various helpful variables
-  // int sockfd=0, p=0, n=0, i, PORT;
-  // char receive_buffer[recv_buffer_size];
-  // struct sockaddr_in serv_addr;
-  // char * send_buffer = malloc(send_buffer_size * (sizeof(char)));
-  send_buffer = malloc(send_buffer_size * (sizeof(char)));
+  char receive_buffer[recv_buffer_size];
+  
+  char * send_buffer = malloc(send_buffer_size * (sizeof(char)));
   get_IP(&serv_addr);
   become_donor(serv_addr);
-  //Clear our buffer
-  memset(receive_buffer, '\0' ,sizeof(receive_buffer));
   //Actually accept requests
   while(1){
     //Clear memory from last request
