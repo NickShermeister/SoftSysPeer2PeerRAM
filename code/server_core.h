@@ -13,6 +13,8 @@
 #include <time.h>
 #include "hashmap.h"
 
+# define recv_buffer_size 2048
+
 
 int OPTION = 1;
 int MAX_CONN_REQEUSTS = 10;
@@ -26,7 +28,9 @@ typedef struct {
 
 server* running_server;
 int send_buffer_size = 2048;
-int recv_buffer_size = 2048;
+// int recv_buffer_size = 2048;
+
+
 
 void* s_add_requestor(unsigned int    r_IP);
 void* s_add_donor(unsigned int    d_IP, unsigned int port);

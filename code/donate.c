@@ -1,5 +1,10 @@
 #include "server_core.h"
 
+int sockfd=0, p=0, n=0, i, PORT;
+char receive_buffer[recv_buffer_size];
+  struct sockaddr_in serv_addr;
+char * send_buffer;//malloc(send_buffer_size * (sizeof(char)));
+
 int check_message(char *message) {
   int i;
 
@@ -105,7 +110,7 @@ retrieve(hashmap* hm, char* recv_buffer){
     printf("Yikes");
     send_buffer[0] = '\0';
     write(sockfd, send_buffer, 1);
-    continue;
+    // continue;
   }
   //Get the pointer
   char* stored_data = (char*)d->data;
@@ -116,10 +121,11 @@ int main(void) {
   //We need a hashmap to find stuf given an ID
   hashmap* hm = declare_map(hashCode);
   //various helpful variables
-  int sockfd=0, p=0, n=0, i, PORT;
-  char receive_buffer[recv_buffer_size];
-  struct sockaddr_in serv_addr;
-  char * send_buffer = malloc(send_buffer_size * (sizeof(char)));
+  // int sockfd=0, p=0, n=0, i, PORT;
+  // char receive_buffer[recv_buffer_size];
+  // struct sockaddr_in serv_addr;
+  // char * send_buffer = malloc(send_buffer_size * (sizeof(char)));
+  send_buffer = malloc(send_buffer_size * (sizeof(char)));
   get_IP(&serv_addr);
   become_donor(serv_addr);
   //Clear our buffer
