@@ -105,7 +105,6 @@ retrieve(hashmap* hm, char* recv_buffer){
     printf("Yikes");
     send_buffer[0] = '\0';
     write(sockfd, send_buffer, 1);
-    continue;
   }
   //Get the pointer
   char* stored_data = (char*)d->data;

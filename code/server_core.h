@@ -17,6 +17,9 @@
 int OPTION = 1;
 int MAX_CONN_REQEUSTS = 10;
 int MAX_DONORS = 20;
+int sockfd;
+char *receive_buffer;
+char *send_buffer;
 
 typedef struct {
   hashmap* requestors;
