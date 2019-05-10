@@ -97,6 +97,8 @@ Clearly something we did worked, as the results below show. Although it varies h
 
 ![](comparison_plot.png)
 
+Finally at [this link](https://www.youtube.com/watch?v=QefEDYvPXeo) you can find a video of Peer2Peer in action. The requestor is in the top left, the server is on the right, and the donor is in the bottom left. After the donor registers with the server, the requester will store a string by routing through the server and then immediately request the string. At every point each player will display the message it receives and wait one second, so you can see the route of the data as it gets stored and retrieved.
+
 ## Resources
 A lot of our first set of resources came from prior projects in this class or other projects that we have located. A list of referenced projects are:
 - https://github.com/shrutiyer/SoftSysServerClient/blob/master/reports/report.md
